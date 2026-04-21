@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>캐치웰 | 더 편리한 일상의 설계</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #0057b8;
+      --primary-dark: #003f8a;
+      --accent: #00b4d8;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --bg-light: #f4f8ff;
+      --white: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── 네비게이션 ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #e5eaf3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+    }
+
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--primary); }
+
+    /* ── 히어로 ── */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--accent) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 5% 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #hero::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+      top: -200px; right: -150px;
+    }
+
+    #hero::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+      bottom: -100px; left: -100px;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 18px;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 1.2rem;
+      letter-spacing: -1px;
+    }
+
+    .hero-content h1 span { color: #90e0f7; }
+
+    .hero-content p {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.85);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .stat { text-align: center; }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.75);
+      margin-top: 2px;
+    }
+
+    /* ── 공통 섹션 ── */
+    section { padding: 90px 5%; }
+
+    .section-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.5px;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    /* ── 회사 소개 ── */
+    #about {
+      background: var(--bg-light);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .about-text .section-desc { margin-bottom: 2rem; }
+
+    .about-highlights {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .highlight-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .highlight-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    .highlight-item h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .highlight-item p {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    /* ── 제품 ── */
+    #products { background: var(--white); }
+
+    .products-header { text-align: center; margin-bottom: 3rem; }
+    .products-header .section-desc { margin: 0 auto; }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .product-card {
+      background: var(--bg-light);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0,87,184,0.12);
+    }
+
+    .product-icon { font-size: 2.4rem; margin-bottom: 1rem; }
+
+    .product-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .product-card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ── 수상/연혁 ── */
+    #awards { background: var(--bg-light); }
+
+    .awards-inner {
+      max-width: 900px;
+      margin: 3rem auto 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .award-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+
+    .award-card .award-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+    .award-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .award-card p { font-size: 0.875rem; color: var(--muted); }
+
+    /* ── 연락처 ── */
+    #contact {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      text-align: center;
+    }
+
+    #contact .section-title { color: #fff; }
+    #contact .section-desc { color: rgba(255,255,255,0.8); margin: 0 auto 3rem; }
+
+    .contact-grid {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-item {
+      background: rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 1.6rem 2.2rem;
+      min-width: 200px;
+    }
+
+    .contact-item .c-icon { font-size: 1.8rem; margin-bottom: 0.6rem; }
+
+    .contact-item h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 0.3rem;
+    }
+
+    .contact-item p {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ── 푸터 ── */
+    footer {
+      background: #0a0f1e;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 2rem 5%;
+      font-size: 0.85rem;
+    }
+
+    footer span { color: rgba(255,255,255,0.8); font-weight: 600; }
+
+    /* ── 반응형 ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .hero-stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 네비게이션 -->
+  <nav>
+    <div class="nav-logo">Catch<span>Well</span></div>
+    <ul class="nav-links">
+      <li><a href="#about">회사 소개</a></li>
+      <li><a href="#products">제품</a></li>
+      <li><a href="#awards">수상 실적</a></li>
+      <li><a href="#contact">연락처</a></li>
+    </ul>
+  </nav>
+
+  <!-- 히어로 -->
+  <section id="hero">
+    <div class="hero-content">
+      <div class="hero-badge">대한민국 대표 생활가전 브랜드</div>
+      <h1>더 편리한<br /><span>일상의 설계</span></h1>
+      <p>1999년 창립 이후 25년간 쌓아온 기술력으로<br />누적 판매 100만 대를 돌파한 캐치웰입니다.</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-number">25년+</div>
+          <div class="stat-label">업력</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">100만+</div>
+          <div class="stat-label">누적 판매</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">50+</div>
+          <div class="stat-label">출시 제품</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">10대</div>
+          <div class="stat-label">신기술 보유</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 회사 소개 -->
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-text">
+        <p class="section-label">About Us</p>
+        <h2 class="section-title">함께 그리는<br />더 편리한 일상</h2>
+        <p class="section-desc">
+          캐치웰은 1999년 설립 이후 산업용 스마트 단말기(PDA) 전문기업으로 23년간 기술력을 쌓아왔습니다.
+          2016년부터 생활가전 분야로 사업을 확장, 정부 선정 10대 신기술 보유 연구소를 기반으로
+          고품질 생활가전 제품을 선보이고 있습니다.
+        </p>
+      </div>
+      <div class="about-highlights">
+        <div class="highlight-item">
+          <div class="highlight-icon">🏆</div>
+          <div>
+            <h4>국무총리상 수상</h4>
+            <p>정부 공인 기술력과 품질을 인정받았습니다.</p>
+          </div>
+        </div>
+        <div class="highlight-item">
+          <div class="highlight-icon">🔬</div>
+          <div>
+            <h4>정부 선정 10대 신기술 보유</h4>
+            <p>산업통상자원부 인증 연구소를 운영합니다.</p>
+          </div>
+        </div>
+        <div class="highlight-item">
+          <div class="highlight-icon">📍</div>
+          <div>
+            <h4>판교 테크노파크</h4>
+            <p>경기도 성남시 분당구 판교로 723 B동 602호</p>
+          </div>
+        </div>
+        <div class="highlight-item">
+          <div class="highlight-icon">👤</div>
+          <div>
+            <h4>대표이사 서동우</h4>
+            <p>중소기업 / 설립 1999년</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 제품 -->
+  <section id="products">
+    <div class="products-header">
+      <p class="section-label">Products</p>
+      <h2 class="section-title">생활을 바꾸는 제품들</h2>
+      <p class="section-desc">가정의 모든 공간을 위한 스마트 생활가전을 제공합니다.</p>
+    </div>
+    <div class="products-grid">
+      <div class="product-card">
+        <div class="product-icon">🌀</div>
+        <h3>무선 청소기</h3>
+        <p>강력한 흡입력의 가정용 무선청소기</p>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">💧</div>
+        <h3>물걸레 청소기</h3>
+        <p>스팀 & 물걸레 올인원 청소 솔루션</p>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">🤖</div>
+        <h3>로봇 청소기</h3>
+        <p>자동 경로 설정 스마트 로봇청소기</p>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">🚿</div>
+        <h3>욕실 청소기</h3>
+        <p>욕실 전용 방수 설계 청소기</p>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">💨</div>
+        <h3>무선 고데기</h3>
+        <p>간편하게 사용하는 무선 헤어스타일러</p>
+      </div>
+      <div class="product-card">
+        <div class="product-icon">⚖️</div>
+        <h3>스마트 체중계</h3>
+        <p>앱 연동 체성분 측정 스마트 체중계</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 수상 실적 -->
+  <section id="awards">
+    <div style="text-align:center; margin-bottom: 1rem;">
+      <p class="section-label">Awards</p>
+      <h2 class="section-title">수상 실적</h2>
+    </div>
+    <div class="awards-inner">
+      <div class="award-card">
+        <div class="award-icon">🥇</div>
+        <h3>국무총리상</h3>
+        <p>기술 혁신 및 우수 제품 개발로 국무총리상을 수상했습니다.</p>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">🏅</div>
+        <h3>산업통상자원부 장관상</h3>
+        <p>산업 발전 기여 및 기술력으로 장관상을 수상했습니다.</p>
+      </div>
+      <div class="award-card">
+        <div class="award-icon">🔖</div>
+        <h3>10대 신기술 보유 인증</h3>
+        <p>대한민국 정부가 선정한 10대 신기술 보유 연구소로 인증받았습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 연락처 -->
+  <section id="contact">
+    <p class="section-label" style="color:rgba(255,255,255,0.7);">Contact</p>
+    <h2 class="section-title">문의하기</h2>
+    <p class="section-desc">캐치웰에 대해 궁금한 점이 있으시면 언제든지 연락주세요.</p>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="c-icon">📍</div>
+        <h4>주소</h4>
+        <p>경기도 성남시 분당구<br />판교로 723 B동 602호</p>
+      </div>
+      <div class="contact-item">
+        <div class="c-icon">🌐</div>
+        <h4>웹사이트</h4>
+        <p>catchwell.com</p>
+      </div>
+      <div class="contact-item">
+        <div class="c-icon">🏢</div>
+        <h4>사업자 정보</h4>
+        <p>설립 1999년<br />대표이사 서동우</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 푸터 -->
+  <footer>
+    <p>&copy; 2026 <span>캐치웰 (CatchWell)</span>. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
