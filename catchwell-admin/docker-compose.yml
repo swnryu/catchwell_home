@@ -1,0 +1,72 @@
+services:
+  database:
+    image: mysql:8.0
+    container_name: cw_mysql
+    restart: always
+    command: --sql-mode=NO_ENGINE_SUBSTITUTION --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: cw_admin
+      MYSQL_USER: cwadmin
+      MYSQL_PASSWORD: Catchwell1!
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cw_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "cwadmin", "-pCatchwell1!"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: cw_backend
+    restart: always
+    environment:
+      DATABASE_URL: mysql://cwadmin:Catchwell1!@database:3306/cw_admin
+      JWT_SECRET: catchwell_jwt_secret_2024
+      PORT: 4000
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - cw_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: cw_frontend
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - cw_network
+
+volumes:
+  mysql_data:
+
+networks:
+  cw_network:
+    driver: bridge

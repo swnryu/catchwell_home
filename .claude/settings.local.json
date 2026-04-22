@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Bash(docker-compose down *)",
+      "Bash(docker-compose up *)",
+      "Bash(docker run *)",
+      "Bash(docker exec cw_frontend *)",
+      "Bash(docker-compose stop *)",
+      "Bash(docker-compose rm *)",
+      "Bash(docker-compose build *)",
+      "Bash(docker restart *)",
+      "Bash(docker exec cw_mysql *)",
+      "Bash(docker exec *)",
+      "WebFetch(domain:www.catchwell.com)",
+      "WebFetch(domain:five-clownfish-45b.notion.site)"
+    ]
+  }
+}

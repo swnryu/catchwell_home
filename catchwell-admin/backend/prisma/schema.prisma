@@ -1,0 +1,501 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model TB_ESTIMATE_KAKAO {
+  SENDING  String  @db.Text
+  DATE     String  @default(dbgenerated("(current_timestamp())")) @db.Text
+  CMID     String  @db.Text
+  STATUS   String  @db.Text
+  TID_NO   String? @db.VarChar(20)
+  PHONE    String  @db.Text
+  ESTIMATE String  @db.Text
+  RSLT     String  @db.Text
+  MSG_RSLT String  @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model TB_EVENT_KAKAO {
+  SENDING  String? @db.Text
+  DATE     String? @default(dbgenerated("(current_timestamp())")) @db.Text
+  CMID     String? @db.Text
+  STATUS   String? @db.Text
+  OID_NO   String? @db.VarChar(40)
+  PHONE    String? @db.Text
+  CALLBACK String? @db.Text
+  RSLT     String? @db.Text
+  MSG_RSLT String? @db.Text
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model TB_INICIS_NOTI {
+  idx       Int    @id @default(autoincrement())
+  P_TID     String @db.Text
+  P_MID     String @db.Text
+  P_AUTH_DT String @db.Text
+  P_STATUS  String @db.Text
+  P_TYPE    String @db.Text
+  P_OID     String @db.Text
+  P_FN_CD1  String @db.Text
+  P_FN_CD2  String @db.Text
+  P_FN_NM   String @db.Text
+  P_AMT     String @db.Text
+  P_UNAME   String @db.Text
+  P_RMESG1  String @db.Text
+  P_RMESG2  String @db.Text
+  P_NOTI    String @db.Text
+  P_AUTH_NO String @db.Text
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model TB_INICIS_RETURN {
+  idx         Int    @id @default(autoincrement())
+  P_STATUS    String @db.Text
+  P_RMESG1    String @db.Text
+  P_TID       String @db.Text
+  P_UNAME     String @db.Text
+  P_OID       String @db.Text
+  P_AMT       String @db.Text
+  P_AUTH_DT   String @db.Text
+  P_FN_NM     String @db.Text
+  P_VACT_NUM  String @db.Text
+  P_VACT_NAME String @db.Text
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model TB_REPORT_KAKAO {
+  SENDING  String? @db.Text
+  DATE     String? @db.Text
+  CMID     String? @db.Text
+  STATUS   String? @db.Text
+  REG_NO   String? @db.VarChar(20)
+  PHONE    String? @db.Text
+  CALLBACK String? @db.Text
+  RSLT     String? @db.Text
+  MSG_RSLT String? @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model TB_SHIPMENT_KAKAO {
+  SENDING  String? @db.Text
+  DATE     String? @default(dbgenerated("(current_timestamp())")) @db.Text
+  CMID     String? @db.Text
+  STATUS   String? @db.Text
+  TID_NO   String? @db.VarChar(20)
+  PHONE    String? @db.Text
+  CALLBACK String? @db.Text
+  RSLT     String? @db.Text
+  MSG_RSLT String? @db.Text
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model admin_account {
+  idx            Int
+  admin_userid   String    @id @db.VarChar(20)
+  admin_passwd   String    @db.VarChar(256)
+  admin_name     String    @db.VarChar(20)
+  admin_phone    String?   @db.VarChar(20)
+  admin_email    String?   @db.VarChar(50)
+  permission     Int?
+  pw_last_update DateTime? @db.Timestamp(0)
+  reserved       Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model admin_log {
+  userid   String   @db.VarChar(20)
+  contents String   @db.VarChar(40)
+  ip       String   @db.VarChar(20)
+  udate    DateTime @default(now()) @db.Timestamp(0)
+  comment  String?  @db.VarChar(128)
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model as_parcel_service {
+  idx                         Int       @id @default(autoincrement())
+  reg_num                     String    @unique(map: "reg_num") @db.VarChar(20)
+  reg_date                    DateTime  @default(now()) @db.Date
+  update_time                 DateTime  @default(now()) @db.Timestamp(0)
+  process_state               Int
+  parcel_num                  String?   @db.VarChar(20)
+  customer_name               String    @db.VarChar(50)
+  customer_phone              String    @db.VarChar(20)
+  customer_addr               String    @db.VarChar(50)
+  customer_addr_detail        String    @db.VarChar(50)
+  customer_zipcode            Int
+  customer_addr_return        String?   @db.VarChar(50)
+  customer_addr_detail_return String?   @db.VarChar(50)
+  customer_zipcode_return     Int?
+  parcel_num_return           String?   @db.VarChar(20)
+  customer_desc               String?   @db.Text
+  broken_type                 String?   @db.VarChar(20)
+  attached_files              String?   @db.VarChar(50)
+  parcel_memo                 String?   @db.VarChar(50)
+  parcel_memo_return          String?   @db.VarChar(50)
+  parcel_date                 DateTime? @db.Date
+  product_type                String?   @db.VarChar(20)
+  product_name                String    @db.VarChar(20)
+  product_date                DateTime? @default(dbgenerated("('2020-01-01')")) @db.Date
+  admin_memo                  String?   @db.Text
+  price                       Int?
+  admin_desc                  String?   @db.Text
+  pic_name                    String?   @db.VarChar(40)
+
+  @@index([idx], map: "idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model as_parcel_service_backup {
+  idx                         Int       @id @default(autoincrement())
+  reg_num                     String    @unique(map: "reg_num") @db.VarChar(20)
+  reg_date                    DateTime  @default(now()) @db.Date
+  update_time                 DateTime  @default(now()) @db.Timestamp(0)
+  process_state               Int
+  parcel_num                  String?   @db.VarChar(20)
+  customer_name               String    @db.VarChar(50)
+  customer_phone              String    @db.VarChar(20)
+  customer_addr               String    @db.VarChar(50)
+  customer_addr_detail        String    @db.VarChar(50)
+  customer_zipcode            Int
+  customer_addr_return        String?   @db.VarChar(50)
+  customer_addr_detail_return String?   @db.VarChar(50)
+  customer_zipcode_return     Int?
+  parcel_num_return           String?   @db.VarChar(20)
+  customer_desc               String?   @db.Text
+  broken_type                 String?   @db.VarChar(20)
+  attached_files              String?   @db.VarChar(50)
+  parcel_memo                 String?   @db.VarChar(50)
+  parcel_memo_return          String?   @db.VarChar(50)
+  parcel_date                 DateTime? @db.Date
+  product_type                String?   @db.VarChar(20)
+  product_name                String    @db.VarChar(20)
+  product_date                DateTime? @default(dbgenerated("('2020-01-01')")) @db.Date
+  admin_memo                  String?   @db.Text
+  price                       Int?      @default(0)
+  admin_desc                  String?   @db.Text
+  pic_name                    String?   @db.VarChar(40)
+
+  @@index([idx], map: "idx")
+}
+
+model cancellation_files {
+  id               Int      @id @default(autoincrement()) @db.UnsignedInt
+  cancellation_idx Int      @db.UnsignedInt
+  original_name    String   @db.VarChar(255)
+  saved_name       String   @db.VarChar(255)
+  file_path        String   @db.VarChar(255)
+  mime_type        String   @db.VarChar(100)
+  file_size        BigInt   @db.UnsignedBigInt
+  created_at       DateTime @default(now()) @db.Timestamp(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cancellation_order {
+  idx                      Int       @id @default(autoincrement())
+  date                     DateTime  @db.Date
+  model_name               String    @db.VarChar(40)
+  order_id                 String    @db.VarChar(40)
+  order_id_sabangnet       String?   @db.VarChar(40)
+  customer_name            String    @db.VarChar(40)
+  shopping_mall            String    @db.VarChar(40)
+  address                  String?   @db.VarChar(200)
+  phone                    String?   @db.VarChar(20)
+  tracking                 String?   @db.VarChar(20)
+  type                     String    @db.VarChar(80)
+  reason                   String    @db.Text
+  serial                   String    @db.VarChar(40)
+  memo                     String    @db.Text
+  status                   Int       @default(0)
+  date_completed           DateTime  @db.Date
+  result_type              Int?
+  result_memo              String?   @db.VarChar(80)
+  admin_name               String    @db.VarChar(20)
+  exchange_order           String?   @db.VarChar(16)
+  company_name             String?   @db.VarChar(40)
+  shipping_date            DateTime? @db.Date
+  exchange_tracking_number String?   @db.VarChar(20)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cancellation_order_sales {
+  idx                Int       @id @default(autoincrement())
+  date               DateTime  @db.Date
+  model_name         String    @db.VarChar(40)
+  order_id           String    @db.VarChar(40)
+  order_id_sabangnet String?   @db.VarChar(40)
+  customer_name      String    @db.VarChar(40)
+  shopping_mall      String    @db.VarChar(40)
+  address            String?   @db.VarChar(200)
+  phone              String?   @db.VarChar(20)
+  tracking           String?   @db.VarChar(20)
+  type               String    @db.VarChar(80)
+  reason             String    @db.Text
+  serial             String    @db.VarChar(40)
+  memo               String    @db.Text
+  status             Int       @default(0)
+  date_completed     DateTime  @db.Date
+  result_type        Int?
+  result_memo        String?   @db.VarChar(80)
+  admin_name         String    @db.VarChar(20)
+  exchange_order     String?   @db.VarChar(16)
+  company_name       String?   @db.VarChar(40)
+  shipping_date      DateTime? @db.Date
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cs_inbound_call {
+  idx                 Int      @id @default(autoincrement())
+  reg_datetime        DateTime @default(now()) @db.DateTime(0)
+  product_name        String?  @db.VarChar(40)
+  inquiry_type        Int?
+  black_consumer      Int      @default(0)
+  black_consumer_desc String?  @db.Text
+  pic_name            String?  @db.VarChar(40)
+  pic_memo            String?  @db.Text
+  customer_name       String?  @db.VarChar(40)
+  customer_phone      String?  @db.VarChar(40)
+  admin_result        Int?     @default(0)
+  admin_desc          String?  @db.Text
+  admin_name          String?  @db.VarChar(40)
+  reserved1           Int?
+  reserved2           Int?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cs_internal_orders {
+  idx                  Int      @unique(map: "idx") @default(autoincrement())
+  reg_datetime         DateTime @default(now()) @db.DateTime(0)
+  product_name         String   @db.VarChar(40)
+  parts_name_ex        String   @db.VarChar(128)
+  parts_name           String?  @db.VarChar(256)
+  parts_count          Int
+  parts_price          Int
+  status               Int
+  reason               String   @db.Text
+  pic_memo             String   @db.Text
+  pic_name             String   @db.VarChar(40)
+  customer_name        String   @db.VarChar(40)
+  customer_phone       String   @db.VarChar(40)
+  customer_addr        String   @db.VarChar(128)
+  customer_addr_detail String   @db.VarChar(128)
+  customer_zipcode     String   @db.VarChar(8)
+  delivery_memo        String   @db.VarChar(128)
+  delivery_num         String   @db.VarChar(40)
+  reserved1            String?  @db.VarChar(80)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cs_online_event {
+  idx              Int     @id @default(autoincrement())
+  name             String? @db.VarChar(30)
+  tel              String? @db.VarChar(20)
+  hp               String? @db.VarChar(20)
+  email            String? @db.VarChar(100)
+  zip_new          String? @db.VarChar(10)
+  add1             String? @db.VarChar(100)
+  add2             String? @db.VarChar(100)
+  japum            String? @db.VarChar(30)
+  gdate            String? @db.VarChar(20)
+  shoppingmall     String? @db.VarChar(30)
+  id               String? @db.VarChar(40)
+  nickname         String? @db.VarChar(40)
+  oid              String? @db.VarChar(40)
+  content          String? @db.Text
+  bbs_file         String? @db.VarChar(300)
+  udate            String? @db.VarChar(30)
+  tracking_num     String? @db.VarChar(20)
+  status           Int?
+  admin_memo       String? @db.Text
+  pin_num          String? @db.VarChar(20)
+  gift             String? @db.VarChar(40)
+  gift_price       String? @db.VarChar(20)
+  gift_quantity    Int?
+  expiry_date      String? @db.VarChar(40)
+  mms_senddate     String? @db.VarChar(30)
+  company_name     String? @db.VarChar(40)
+  delivery_message String? @db.VarChar(100)
+  gift_date        String? @db.VarChar(30)
+  gift_add         String? @db.VarChar(100)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cs_online_event_backup {
+  idx          Int     @id @default(autoincrement())
+  name         String? @db.VarChar(30)
+  tel          String? @db.VarChar(20)
+  hp           String? @db.VarChar(20)
+  email        String? @db.VarChar(100)
+  zip_new      String? @db.VarChar(10)
+  add1         String? @db.VarChar(100)
+  add2         String? @db.VarChar(100)
+  japum        String? @db.VarChar(30)
+  gdate        String? @db.VarChar(20)
+  shoppingmall String? @db.VarChar(30)
+  id           String? @db.VarChar(40)
+  nickname     String? @db.VarChar(20)
+  oid          String? @db.VarChar(40)
+  content      String? @db.Text
+  bbs_file     String? @db.VarChar(100)
+  udate        String? @db.VarChar(30)
+  tracking_num String? @db.VarChar(20)
+  status       Int?
+  admin_memo   String? @db.Text
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cs_online_event_sniper {
+  idx          Int     @id @default(autoincrement())
+  name         String? @db.VarChar(30)
+  tel          String? @db.VarChar(20)
+  hp           String? @db.VarChar(20)
+  email        String? @db.VarChar(100)
+  zip_new      String? @db.VarChar(10)
+  add1         String? @db.VarChar(100)
+  add2         String? @db.VarChar(100)
+  japum        String? @db.VarChar(30)
+  gdate        String? @db.VarChar(20)
+  shoppingmall String? @db.VarChar(30)
+  id           String? @db.VarChar(40)
+  nickname     String? @db.VarChar(40)
+  oid          String? @db.VarChar(40)
+  content      String? @db.Text
+  bbs_file     String? @db.VarChar(100)
+  udate        String? @db.VarChar(30)
+  tracking_num String? @db.VarChar(20)
+  status       Int?
+  admin_memo   String? @db.Text
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model cs_shipping_parts {
+  idx                  Int      @id @default(autoincrement())
+  reg_datetime         DateTime @default(now()) @db.DateTime(0)
+  product_name         String   @db.VarChar(40)
+  parts_name_ex        String   @db.VarChar(128)
+  parts_name           String?  @db.VarChar(256)
+  parts_count          Int
+  parts_price          Int
+  status               Int
+  reason               String   @db.Text
+  pic_memo             String   @db.Text
+  pic_name             String   @db.VarChar(40)
+  customer_name        String   @db.VarChar(40)
+  customer_phone       String   @db.VarChar(40)
+  customer_addr        String   @db.VarChar(128)
+  customer_addr_detail String   @db.VarChar(128)
+  customer_zipcode     String   @db.VarChar(8)
+  delivery_memo        String   @db.VarChar(128)
+  delivery_num         String   @db.VarChar(40)
+  reserved1            String?  @db.VarChar(80)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model delivery_package {
+  idx        Int     @id @default(autoincrement())
+  type       Int     @default(1)
+  model_name String  @db.VarChar(128)
+  box_size   Int
+  price      Int
+  reserved   String? @db.VarChar(128)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model lab_online_event {
+  idx                  Int       @id @default(autoincrement())
+  date                 DateTime  @default(now()) @db.Date
+  event_name           String?   @db.VarChar(100)
+  homepage_id          String?   @db.VarChar(50)
+  customer_name        String?   @db.VarChar(30)
+  customer_phone       String?   @db.VarChar(20)
+  customer_zipcode     String?   @db.VarChar(10)
+  customer_addr        String?   @db.VarChar(100)
+  customer_addr_detail String?   @db.VarChar(100)
+  model_name           String?   @db.VarChar(30)
+  market_name          String?   @db.VarChar(30)
+  market_id            String?   @db.VarChar(40)
+  order_date           DateTime? @db.Date
+  order_id             String?   @db.VarChar(100)
+  serial_no            String?   @db.VarChar(40)
+  file_name            String?   @db.VarChar(100)
+  tracking_num         String?   @db.VarChar(20)
+  status               Int?      @default(0)
+  gift                 String?   @db.VarChar(100)
+  memo                 String?   @db.Text
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model lab_online_event_backup {
+  idx                  Int       @id
+  date                 DateTime  @default(now()) @db.Date
+  event_name           String?   @db.VarChar(100)
+  homepage_id          String?   @db.VarChar(50)
+  customer_name        String?   @db.VarChar(30)
+  customer_phone       String?   @db.VarChar(20)
+  customer_zipcode     String?   @db.VarChar(10)
+  customer_addr        String?   @db.VarChar(100)
+  customer_addr_detail String?   @db.VarChar(100)
+  model_name           String?   @db.VarChar(30)
+  market_name          String?   @db.VarChar(30)
+  market_id            String?   @db.VarChar(40)
+  order_date           DateTime? @db.Date
+  order_id             String?   @db.VarChar(100)
+  serial_no            String?   @db.VarChar(40)
+  file_name            String?   @db.VarChar(100)
+  tracking_num         String?   @db.VarChar(20)
+  status               Int?      @default(0)
+  gift                 String?   @db.VarChar(100)
+  memo                 String?   @db.Text
+}
+
+model product_category {
+  idx           Int    @id @default(autoincrement())
+  category_name String @db.VarChar(40)
+  model_name    String @db.Text
+  model_name_as String @db.Text
+  type          Int?
+}
+
+model products_internal_sales {
+  idx           Int    @id @default(autoincrement())
+  product_name  String @db.VarChar(100)
+  product_price Int
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shipping_date_new {
+  idx               Int     @id @default(autoincrement())
+  model             String? @db.VarChar(80)
+  serial            String? @db.VarChar(50)
+  date              String? @db.VarChar(10)
+  memo              String? @db.VarChar(40)
+  mall              String? @db.VarChar(40)
+  orderid           String? @db.VarChar(40)
+  orderid_sabangnet String? @db.VarChar(40)
+  name              String? @db.VarChar(40)
+  phone1            String? @db.VarChar(20)
+  phone2            String? @db.VarChar(20)
+  address           String? @db.VarChar(160)
+  tracking          String? @db.VarChar(20)
+  deliverymemo      String? @db.VarChar(300)
+  status            Int?    @default(0)
+  filename          String? @db.VarChar(128)
+}
