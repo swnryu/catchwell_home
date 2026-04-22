@@ -1,0 +1,92 @@
+@font-face {
+     font-family: 'S-CoreDream-2ExtraLight';
+     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-2ExtraLight.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+}
+
+@font-face {
+     font-family: 'S-CoreDream-3Light';
+     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+}
+            
+@font-face {
+     font-family: 'S-CoreDream-4Regular';
+     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+}
+
+@font-face {
+     font-family: 'S-CoreDream-5Medium';
+     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-5Medium.woff') format('woff');
+     font-weight: normal;
+     font-style: normal;
+}
+
+@font-face {
+    font-family: 'NanumSquareRound';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+/* AS 접수조회 폼 */
+/*.search-title { font-size: 30px; text-align:center; font-family: 'NanumSquareRound', sans-serif; margin: 100px 0 100px 0; color: #555555; }*/
+.search-title {
+    font-family: 'NanumSquareRound', sans-serif;
+    font-weight: 800;
+    font-size: 30px;
+    color: #19315e;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.search-contents {
+    font-family: 'NanumSquareRound', sans-serif;
+    font-size: 20px;
+    margin: 20px;
+    color: #333;
+}
+
+
+table.search-table {
+    font-family: 'NanumSquareRound', sans-serif;
+    border-collapse: separate;
+    border-spacing: 2px;
+    text-align: center;
+    line-height: 3;
+    width: 100%;
+    margin-top: 50px;
+}   
+
+table.search-table th {
+    font-size: 17px;
+    font-weight: bold;
+    background: #19315e;
+    color: white;
+}
+
+table.search-table td {
+    font-size: 15px;
+    color: #333;
+    background: #eee;
+}
+
+.search-button {
+    font-family: 'NanumSquareRound', sans-serif;
+    text-align: center;
+    width:50px;
+    background-color: #19315e;
+    color: white;
+    padding: 7px;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+}

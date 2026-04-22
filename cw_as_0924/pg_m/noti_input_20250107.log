@@ -1,0 +1,232 @@
+ Array
+(
+    [PageCall time] => 16:08:46
+    [P_TID] => INIMX_VBNKINIpayTest20250107160604324997
+    [P_MID] => INIpayTest
+    [P_AUTH_DT] => 20250107160846
+    [P_STATUS] => 02
+    [P_TYPE] => VBANK
+    [P_OID] => 240930-456
+    [P_FN_CD1] => 03
+    [P_FN_CD2] => 
+    [P_FN_NM] => 기업은행
+    [P_AMT] => 10
+    [P_UNAME] => 최지우
+    [P_RMESG1] => P_VACCT_NO=07502274497442|P_EXP_DT=20250117
+    [P_RMESG2] => 
+    [P_NOTI] => 
+    [P_AUTH_NO] => 
+)
+
+ Array
+(
+    [PageCall time] => 16:10:00
+    [P_TID] => INIMX_VBNKINIpayTest20250107160604324997
+    [P_MID] => INIpayTest
+    [P_AUTH_DT] => 20250107160846
+    [P_STATUS] => 02
+    [P_TYPE] => VBANK
+    [P_OID] => 240930-456
+    [P_FN_CD1] => 03
+    [P_FN_CD2] => 
+    [P_FN_NM] => 기업은행
+    [P_AMT] => 10
+    [P_UNAME] => 최지우
+    [P_RMESG1] => P_VACCT_NO=07502274497442|P_EXP_DT=20250117
+    [P_RMESG2] => 
+    [P_NOTI] => 
+    [P_AUTH_NO] => 
+)
+
+ INSERT INTO TB_INICIS_NOTI (
+            P_TID, 
+            P_MID, 
+            P_AUTH_DT, 
+            P_STATUS, 
+            P_TYPE, 
+            P_OID, 
+            P_FN_CD1, 
+            P_FN_CD2, 
+            P_FN_NM, 
+            P_AMT, 
+            P_UNAME, 
+            P_RMESG1, 
+            P_RMESG2, 
+            P_NOTI, 
+            P_AUTH_NO
+        ) VALUES (
+            'INIMX_VBNKINIpayTest20250107160604324997', 
+            'INIpayTest', 
+            '20250107160846', 
+            '02', 
+            'VBANK', 
+            '240930-456', 
+            '03', 
+            '', 
+            '기업은행', 
+            '10', 
+            '최지우', 
+            'P_VACCT_NO=07502274497442|P_EXP_DT=20250117', 
+            '', 
+            '', 
+            ''
+        )
+ Array
+(
+    [PageCall time] => 16:20:05
+    [P_TID] => INIMX_VBNKINIpayTest20250107160604324997
+    [P_MID] => INIpayTest
+    [P_AUTH_DT] => 20250107160846
+    [P_STATUS] => 02
+    [P_TYPE] => VBANK
+    [P_OID] => 240930-456
+    [P_FN_CD1] => 03
+    [P_FN_CD2] => 
+    [P_FN_NM] => 기업은행
+    [P_AMT] => 10
+    [P_UNAME] => 최지우
+    [P_RMESG1] => P_VACCT_NO=07502274497442|P_EXP_DT=20250117
+    [P_RMESG2] => 
+    [P_NOTI] => 
+    [P_AUTH_NO] => 
+)
+
+ INSERT INTO TB_INICIS_NOTI (
+            P_TID, 
+            P_MID, 
+            P_AUTH_DT, 
+            P_STATUS, 
+            P_TYPE, 
+            P_OID, 
+            P_FN_CD1, 
+            P_FN_CD2, 
+            P_FN_NM, 
+            P_AMT, 
+            P_UNAME, 
+            P_RMESG1, 
+            P_RMESG2, 
+            P_NOTI, 
+            P_AUTH_NO
+        ) VALUES (
+            'INIMX_VBNKINIpayTest20250107160604324997', 
+            'INIpayTest', 
+            '20250107160846', 
+            '02', 
+            'VBANK', 
+            '240930-456', 
+            '03', 
+            '', 
+            '기업은행', 
+            '10', 
+            '최지우', 
+            'P_VACCT_NO=07502274497442|P_EXP_DT=20250117', 
+            '', 
+            '', 
+            ''
+        )
+ Array
+(
+    [PageCall time] => 16:30:00
+    [P_TID] => INIMX_VBNKINIpayTest20250107160604324997
+    [P_MID] => INIpayTest
+    [P_AUTH_DT] => 20250107160846
+    [P_STATUS] => 02
+    [P_TYPE] => VBANK
+    [P_OID] => 240930-456
+    [P_FN_CD1] => 03
+    [P_FN_CD2] => 
+    [P_FN_NM] => 기업은행
+    [P_AMT] => 10
+    [P_UNAME] => 최지우
+    [P_RMESG1] => P_VACCT_NO=07502274497442|P_EXP_DT=20250117
+    [P_RMESG2] => 
+    [P_NOTI] => 
+    [P_AUTH_NO] => 
+)
+
+ INSERT INTO TB_INICIS_NOTI (
+            P_TID, 
+            P_MID, 
+            P_AUTH_DT, 
+            P_STATUS, 
+            P_TYPE, 
+            P_OID, 
+            P_FN_CD1, 
+            P_FN_CD2, 
+            P_FN_NM, 
+            P_AMT, 
+            P_UNAME, 
+            P_RMESG1, 
+            P_RMESG2, 
+            P_NOTI, 
+            P_AUTH_NO
+        ) VALUES (
+            'INIMX_VBNKINIpayTest20250107160604324997', 
+            'INIpayTest', 
+            '20250107160846', 
+            '02', 
+            'VBANK', 
+            '240930-456', 
+            '03', 
+            '', 
+            '기업은행', 
+            '10', 
+            '최지우', 
+            'P_VACCT_NO=07502274497442|P_EXP_DT=20250117', 
+            '', 
+            '', 
+            ''
+        )
+ Array
+(
+    [PageCall time] => 16:40:00
+    [P_TID] => INIMX_VBNKINIpayTest20250107160604324997
+    [P_MID] => INIpayTest
+    [P_AUTH_DT] => 20250107160846
+    [P_STATUS] => 02
+    [P_TYPE] => VBANK
+    [P_OID] => 240930-456
+    [P_FN_CD1] => 03
+    [P_FN_CD2] => 
+    [P_FN_NM] => 기업은행
+    [P_AMT] => 10
+    [P_UNAME] => 최지우
+    [P_RMESG1] => P_VACCT_NO=07502274497442|P_EXP_DT=20250117
+    [P_RMESG2] => 
+    [P_NOTI] => 
+    [P_AUTH_NO] => 
+)
+
+ INSERT INTO TB_INICIS_NOTI (
+            P_TID, 
+            P_MID, 
+            P_AUTH_DT, 
+            P_STATUS, 
+            P_TYPE, 
+            P_OID, 
+            P_FN_CD1, 
+            P_FN_CD2, 
+            P_FN_NM, 
+            P_AMT, 
+            P_UNAME, 
+            P_RMESG1, 
+            P_RMESG2, 
+            P_NOTI, 
+            P_AUTH_NO
+        ) VALUES (
+            'INIMX_VBNKINIpayTest20250107160604324997', 
+            'INIpayTest', 
+            '20250107160846', 
+            '02', 
+            'VBANK', 
+            '240930-456', 
+            '03', 
+            '', 
+            '기업은행', 
+            '10', 
+            '최지우', 
+            'P_VACCT_NO=07502274497442|P_EXP_DT=20250117', 
+            '', 
+            '', 
+            ''
+        )

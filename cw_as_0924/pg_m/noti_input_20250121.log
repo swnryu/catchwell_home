@@ -1,0 +1,20 @@
+ Array
+(
+    [PageCall time] => 10:09:53
+    [P_TID] => INIMX_VBNKINIpayTest20250121100643775338
+    [P_MID] => INIpayTest
+    [P_AUTH_DT] => 20250121100953
+    [P_STATUS] => 02
+    [P_TYPE] => VBANK
+    [P_OID] => 250121-005
+    [P_FN_CD1] => 81
+    [P_FN_CD2] => 
+    [P_FN_NM] => 하나은행
+    [P_AMT] => 10
+    [P_UNAME] => 캐치웰 테스트
+    [P_RMESG1] => P_VACCT_NO=20893853139237|P_EXP_DT=20250131
+    [P_RMESG2] => 
+    [P_NOTI] => 
+    [P_AUTH_NO] => 
+)
+

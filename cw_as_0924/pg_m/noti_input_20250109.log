@@ -1,0 +1,20 @@
+ Array
+(
+    [PageCall time] => 10:58:33
+    [P_TID] => INIMX_VBNKINIpayTest20250109105607394680
+    [P_MID] => INIpayTest
+    [P_AUTH_DT] => 20250109105833
+    [P_STATUS] => 02
+    [P_TYPE] => VBANK
+    [P_OID] => 250109-004
+    [P_FN_CD1] => 81
+    [P_FN_CD2] => 
+    [P_FN_NM] => 하나은행
+    [P_AMT] => 10
+    [P_UNAME] => 류시욱테스트2
+    [P_RMESG1] => P_VACCT_NO=20894653442537|P_EXP_DT=20250119
+    [P_RMESG2] => 
+    [P_NOTI] => 
+    [P_AUTH_NO] => 
+)
+

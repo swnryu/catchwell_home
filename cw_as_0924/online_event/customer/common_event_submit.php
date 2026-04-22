@@ -1,0 +1,330 @@
+<? 
+
+header("Content-Type:text/html;charset=utf-8");
+
+
+/** Error reporting */
+error_reporting(E_ALL);
+ini_set('display_errors', false);
+ini_set('display_startup_errors', false);
+
+
+include("../../common.php");
+include("../event_def.php");
+
+include("kakao_bizppurio.php");//20221122 함수추가 
+
+
+$name = $tools->filter($_POST['name2']);
+if($name){
+	$oid = $tools->filter($_POST['oid']);
+
+	$event_name = $tools->filter($_POST['event_name']);
+
+	$hp1 = $tools->filter($_POST['hp1']);
+	$hp2 = $tools->filter($_POST['hp2']);
+	$hp3 = $tools->filter($_POST['hp3']);
+	$hp = $hp1."-".$hp2."-".$hp3;
+	$hptalk = $hp1.$hp2.$hp3;
+
+	$zip_new = $tools->filter($_POST['zip_new']);
+	$add1 = $tools->filter($_POST['add1']);
+	$add2 = $tools->filter($_POST['add2']);
+	$japum = $tools->filter($_POST['japum']);
+	$gdate = $tools->filter($_POST['gdate']);
+	$shoppingmall = $tools->filter($_POST['shoppingmall']);
+	$shoppingmall2 = $tools->filter($_POST['shoppingmall2']);
+	$id = $tools->filter($_POST['id']);
+	$serial_no = $tools->filter($_POST['serial_no']);
+	$homepage_id = $tools->filter($_POST['homepage_id']);
+	$gift = $tools->filter($_POST['gift']);
+
+	if ($shoppingmall2!="" && $shoppingmall=="직접입력") 
+	{
+		$shoppingmall = $shoppingmall2; //2021-08-10
+	}
+
+	/*
+	//GD함수 업로드
+	include $_SERVER['DOCUMENT_ROOT']."/cw_as/lib/gd.php";
+	
+	// 파일업로드 
+	if( $_FILES['bbs_file']['size'] > 0 ) {
+		$EXT_CHECK = array("php", "php3", "htm", "html", "cgi", "perl", "mp4");	// 업로드 파일 제한 확장자 추가 가능
+		if( $EXT_TMP = explode( ".", $_FILES['bbs_file']['name'])) {	 foreach ($EXT_CHECK as $value) { if( strstr( $value, strtolower($EXT_TMP[1]))) { $tools->errMsg( strtoupper($EXT_TMP[1])." 은 업로드 할수 없습니다." ); } }	}
+		//if( $_FILES[bbs_file][size]  > 1024*1024*5) { $tools->errMsg("업로드 용량 초과입니다\\n\\n5메가 까지 업로드 가능합니다"); exit(); }
+		$filename = substr($_FILES['bbs_file']['name'],-5);
+		$fn = explode(".",$filename); 
+		$EXT_TMP = $fn[1]; 
+		$file_name	= time()."1.".$EXT_TMP;
+		$sfile_name = $_FILES['bbs_file']['name'];
+		list($width, $height)=getimagesize($_FILES['bbs_file']['tmp_name']); 
+		if(max($width, $height) > 10240){
+			$imgwidth=$width*(50/100);//width 값 
+			$imgheight=$height*(50/100);//height 값 
+
+			if(!@GDImageResize($_FILES['bbs_file']['tmp_name'], "../data/".$file_name, $imgwidth, $imgheight,NULL,90, strtolower($EXT_TMP))){ 
+				$tools->errMsg("파일 업로드 에러(1)"); 
+			} else { 
+				@unlink($_FILES['bbs_file']['tmp_name']);	
+			} 
+		} else {
+			//echo $ROOT_DIR."../data/".$file_name;
+			if( !@move_uploaded_file($_FILES['bbs_file']['tmp_name'], "../data/".$file_name) ) { 
+				$tools->errMsg("파일 업로드 에러(2)"); 
+			} else { 
+				@unlink($_FILES['bbs_file']['tmp_name']);	
+			} 
+		}
+	} else {
+		$file_name 	= "";
+		$tools->errMsg("파일 업로드 에러(3)"); 
+	}*/
+
+	//특수문자제거
+	$name = str_replace("'","",$name); 
+	$add1 = str_replace("'","",$add1); 
+	$add2 = str_replace("'","",$add2); 
+	$id = str_replace("'","",$id); 
+	$oid = str_replace("'","",$oid); 
+
+	//serial_no 중복체크-20210722
+	$query = "select * from lab_online_event where serial_no='$serial_no' ";
+	$result = mysqli_query($db->db_conn, $query);
+	$row_cnt = mysqli_num_rows($result);
+	if ($row_cnt > 0) {
+		$tools->errMsg("이미 등록된 시리얼번호입니다."); 
+	}
+
+
+	//
+	$query = "insert into lab_online_event set event_name='$event_name', homepage_id='$homepage_id', customer_name='$name', customer_phone='$hp', customer_zipcode='$zip_new', customer_addr='$add1', customer_addr_detail='$add2', model_name='$japum', order_date='$gdate', market_name='$shoppingmall', market_id='$id', order_id='$oid', serial_no='$serial_no', gift='$gift' ";
+	
+	if (mysqli_query($db->db_conn, $query) == false) {
+		$tools->errMsg("접수 중 오류가 발생하였습니다.(1)"); 
+	}
+
+	function httpPost($url,$params)
+	{
+		$postData = '';
+
+		foreach($params as $k => $v) 
+		{ 
+			$postData .= $k . '='.$v.'&'; 
+		}
+		$postData = rtrim($postData, '&');
+
+		$headers = array(
+			"Content-Type: application/x-www-form-urlencoded; charset=UTF-8",
+			"x-waple-authorization:MTE1NDQtMTU2ODY5NzgyMTU4MS1kYTEwOWZjMi01MmFmLTQ1YTEtOTA5Zi1jMjUyYWY2NWExMWE=" 
+			);
+		
+		$ch = curl_init();  
+		
+		curl_setopt($ch, CURLOPT_URL,$url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_HEADER, false); 
+		curl_setopt($ch, CURLOPT_POST, count($postData));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);    
+		
+		$output=curl_exec($ch);
+		
+		curl_close($ch);
+		
+		if (USE_DEBUG) {
+			//var_dump($output);
+			//string(75) "{"result_message":"OK","result_code":"200","cmid":"2020112016081366431301"}"
+		}
+
+		return $output;
+
+	}
+
+	if ( 1 /*USE_KAKAOTALK*/) {
+/*
+		안녕하세요. 캐치웰입니다.
+		#{NAME} 고객님의 이벤트 접수가 완료되었습니다.
+		
+		* 이름: #{NAME}
+		* 휴대폰: #{HP1}
+		* 모델명 : #{MODEL}
+		
+		휴대폰 번호로 접수 상태를 조회할 수 있습니다.
+		AS 및 기타 문의 사항은 고객센터나 홈페이지를 이용해 주세요.
+		
+		이용해 주셔서 감사합니다.
+*/		
+//20221122 bizppurio-------------------------------------------------------------------------------------------------------------------------------------
+$DEBUG = 0;
+$headers[0]="Accept:application/json"; 
+$headers[1]="Content-Type:application/json"; 
+$headers[2]="Authorization:Bearer";
+$url = 'https://api.bizppurio.com/v3/message';
+//추가
+$token = getToken();
+//print_r( $token);
+$headers1 = array('Accept:application/json', 'Content-Type:application/json', 'Authorization:Bearer '. $token);
+
+$button_list1 = array("name"=>"이벤트 접수 조회", "type"=>"WL", "url_pc" =>"https://catchwell.com/catchwell/event/common_event_query.html", "url_mobile"=>"https://catchwell.com/catchwell/event/common_event_query.html");
+$button_list2 = array("name"=>"캐치웰 홈페이지", "type"=>"WL", "url_pc" =>"https://catchwell.com", "url_mobile"=>"https://catchwell.com");
+$buttons = array($button_list1,$button_list2);
+
+$at["message"] = "안녕하세요. 캐치웰입니다.\n"
+.$name." 고객님의 이벤트 접수가 완료되었습니다.\n\n".
+"* 이름: ".$name."\n".
+"* 휴대폰: ".$hp."\n".
+"* 모델명: ".$japum."\n\n".
+"휴대폰 번호로 접수 상태를 조회할 수 있습니다.\n".
+"AS 및 기타 문의 사항은 고객센터나 홈페이지를 이용해 주세요.\n\n".
+"이용해 주셔서 감사합니다.\n";
+
+$at["senderkey"] = "44970513f96ceef0a7b532fa874d4697ca936dce";
+$at["templatecode"] = "CAPI012";
+$at["button"] = $buttons;
+$content = array("at" => $at);
+
+$data = array( );
+$data["account"] = "catchwellota";//비즈뿌리오계정
+$data["refkey"] = "00000";//고객사에서 부여한 키  임의의 값을 넣으라고 했음
+$data["type"] = "at";//메세지데이터타입
+$data["from"] = "07077776752";//발신번호
+$data["to"] = $hptalk;//수신번호
+$data["content"] = $content;//메시지데이터
+
+$json_data = json_encode($data, JSON_UNESCAPED_SLASHES);
+if ($DEBUG)
+{
+	echo '<pre>';
+	print_r($data);
+	print_r($json_data);
+	//print_r(urldecode($json_data));
+	print_r(json_decode($json_data));
+	echo '</pre>';
+}
+
+$Response = httpsPost($url, $json_data, $headers1);
+
+$Ret_data = (json_decode($Response));
+$code = $Ret_data->code;// 결과 코드 code 1000이면 성공
+$description = $Ret_data->description;//결과 메세지 success 출력
+$refkey_value = $Ret_data->refkey;//고객사에서 부여한 키
+$messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키 
+if ($DEBUG)
+{
+	echo '<pre>';
+	print_r( "-------------------code------------" );
+	echo '<br>';
+	print_r($code);// 결과 코드 code 1000이면 성공
+	echo '<br>';
+	print_r($description); //결과 메세지 success 출력
+	echo '<br>';
+	print_r($refkey_value); //고객사에서 부여한 키
+	echo '<br>';
+	print_r($messagekey);//메세지키 
+	echo '<br>';
+	echo '</pre>';
+}
+//apistore----------------------------------------------------------------------------------------------------------------------------------------------
+	/*
+	$talkmsg = "안녕하세요. 캐치웰입니다.\n".$name." 고객님의 이벤트 접수가 완료되었습니다.\n\n* 이름: ".$name."\n* 휴대폰: ".$hp."\n* 모델명 : ".$japum."\n\n휴대폰 번호로 접수 상태를 조회할 수 있습니다.\nAS 및 기타 문의 사항은 고객센터나 홈페이지를 이용해 주세요.\n\n이용해 주셔서 감사합니다.\n";
+
+		$parameters = array(
+			'PHONE' => $hptalk, 
+			'CALLBACK' => "07077776752", //발송인증된 번호만 사용가능
+			'MSG' => $talkmsg, 
+			'TEMPLATE_CODE' => "CAPI012", 
+			'FAILED_TYPE' => "SMS", 
+			'FAILED_SUBJECT' => "[캐치웰]", 
+			'FAILED_MSG' => "캐치웰 이벤트 접수 완료\r\n접수조회: https://catchwell.com/catchwell/event/common_event_query.html" , 
+			'BTN_TYPES' => "웹링크,웹링크", 
+			'BTN_TXTS' => "이벤트 접수 조회,캐치웰 홈페이지",
+			'BTN_URLS1' => "https://catchwell.com/catchwell/event/common_event_query.html,https://catchwell.com",
+			'BTN_URLS2' => "https://catchwell.com/catchwell/event/common_event_query.html,https://catchwell.com"
+		);
+
+		//발신번호 등록시 SENDNUMBER,COMMENT,PINTYPE을 먼저 입력하고 POST후 휴대전화로 PINCODE수신되면 PINCODE값 추가하여 인증하면됨
+		$parametersendnum = array(
+			'SENDNUMBER' => "07077776752",
+			'COMMENT' => "캐치웰대표번호",
+			'PINTYPE' => "SMS",
+			'PINCODE' => "581732"
+		);
+
+		//알림톡 보낼때
+		$ret = httpPost("http://api.apistore.co.kr/kko/1/msg/catchwell",$parameters);
+		if (USE_DEBUG) {
+			var_dump($ret);//string(75) "{"result_message":"OK","result_code":"200","cmid":"2020112016081366431301"}"
+			echo "<br>";
+		}
+
+		$res1 = str_replace('{',"",$ret); 
+		$res1 = str_replace('}',"",$res1);
+		$res1 = str_replace('"',"",$res1);
+
+		$res2 = explode(',', $res1); //result_message:OK,result_code:200,cmid:2020112016081366431301
+	
+		//string(75) "{"result_message":"OK","result_code":"200","cmid":"2020112016081366431301"}"
+		$result_message = "";
+		$result_code = "";
+		$cmid = "";
+
+		for($i=0; $i<count($res2); $i++) 
+		{
+			//echo $res2[$i]."<br>"; 
+
+			$res3 = explode(':', $res2[$i]);
+			
+			if ($res3[0] == "result_message") {
+				$result_message = $res3[1];
+			} else if ($res3[0] == "result_code") {
+				$result_code = $res3[1];
+			} else if ($res3[0] == "cmid") {
+				$cmid = $res3[1];
+			}
+		}
+	*/
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+		//string(75) "{"result_message":"OK","result_code":"200","cmid":"2020112016081366431301"}"
+		$result_message = "";
+		$result_code = "";
+		$cmid = "";
+		//20221122
+		$result_message = $description;
+		$result_code = $code;
+		$cmid = $messagekey;
+
+		//insert to database 
+		if( $db->insert('TB_EVENT_KAKAO',
+			"	SENDING='REG_EVT',
+				DATE=now(),
+				OID_NO='$oid',
+				PHONE='$hp',
+				CMID='$cmid',
+				MSG_RSLT='$result_message',
+				RSLT='$result_code'
+			"))
+		{
+		}
+
+
+	}
+
+?>
+
+<script>
+	alert('이벤트 응모에 접수 하였습니다.');
+	location.href="https://catchwell.com/"; 
+</script>
+
+<?
+}
+else 
+{
+?>	
+	<script>
+	$tools->errMsg("접수 중 오류가 발생하였습니다.(2)"); 
+	</script>
+<?
+}
+?>

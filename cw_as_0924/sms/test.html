@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이미지와 텍스트 페이지</title>
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .left-image {
+        width: 50%;
+        height: auto;
+        max-width: 100%;
+    }
+
+    .right-content {
+        width: 50%;
+        padding: 0 20px;
+    }
+
+    .bottom-text {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    @media screen and (max-width: 768px) {
+        .content {
+            flex-direction: column;
+        }
+
+        .left-image, .right-content {
+            width: 100%;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="content">
+        <img src="left_image.jpg" alt="Left Image" class="left-image">
+        <div class="right-content">
+            <img src="right_image.jpg" alt="Right Image" style="width: 100%; height: auto; max-width: 100%;">
+			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

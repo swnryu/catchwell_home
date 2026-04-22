@@ -1,0 +1,29 @@
+@charset "utf-8";
+
+.title-sub5depth{font-weight:normal;font-size:20px;line-height:52px;color:#333;font-weight:500;padding:64px 0 4px 0;}
+
+.parcel-search .common-data-box {margin:50px auto;border-top:1px solid #bec0c2}
+.parcel-search .title-sub5depth{ font-size: 24px; color: #333; }
+
+.common-hrTable-1{position:relative;}
+.common-hrTable-1:before{display:block;width:100%;content:'';box-sizing:border-box;top:0;left:0;height:2px;background-color: #333;}
+.common-hrTable-1 table{width:100%;}
+.common-hrTable-1 table th{padding:16px 0 13px 0;text-align:center;border-bottom:solid 1px #bec0c2;background:#f2f2f2;font-weight:normal;font-weight:500;font-size:16px;color:#333;}
+.common-hrTable-1 table th:last-child{border-right:0;}
+.common-hrTable-1 table th.bg-none{padding:9px 10px 8px 30px;background:#fff;font-weight:400;border-bottom-color:#e3e4e5;vertical-align:top;text-align:left;color:#666;line-height:28px;}
+.common-hrTable-1 table th.bg-none-mid{padding:7px 30px 9px 30px;background:#fff;font-weight:400;border-bottom-color:#e3e4e5;vertical-align:middle;text-align:left;color:#666;}
+.common-hrTable-1 table th.bg-none.bold{font-weight:500;color:#000;}
+.common-hrTable-1 table th.text-alignCenter{text-align:center;padding-left:10px;padding-right:10px;}
+.common-hrTable-1 table th.text-alignLeft{text-align:left;padding-left:30px;padding-right:10px;}
+.common-hrTable-1 table td{padding:9px 10px 8px 30px;text-align:left;border-bottom:solid 1px #e3e4e5;background:#fff;font-size:16px;color:#666;border-right:1px solid #e3e4e5;line-height:28px;font-weight:400;vertical-align:top;}
+.common-hrTable-1 table td:last-child{border-right:0;}
+.common-hrTable-1 table td:last-of-type:after{display:none;}
+.common-hrTable-1 table tr:last-child th,
+.common-hrTable-1 table tr:last-child td{border-bottom:1px solid #bec0c2;}
+.common-hrTable-1 .text-alignCenter{text-align:center;padding-left:10px;}
+
+.table-infoPPType-1{}
+.table-infoPPType-1 th,
+.table-infoPPType-1 td{font-size:16px;text-align:left;font-weight:normal;padding:2px 0;}
+.table-infoPPType-1 th{color:#333;}
+.table-infoPPType-1 td{font-weight:400;color:#333;}
