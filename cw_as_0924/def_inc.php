@@ -11,6 +11,7 @@
 	define("M_CANCELLATION", "tab_cancellation");//20210322
 	define("M_INBOUND", "tab_inbound");//20211117
 	define("M_ADMIN", "tab_admin");//20211223
+	define("M_STATS", "tab_stats");
 
 	//menu
 	define("S_MAIN", "sub_main");
@@ -31,8 +32,18 @@
 	define("S_AS_REPORT", "sub_as_report");//20230707 전체검색
 
 
+	define("S_AS_ARRIVED", "sub_as_arrived");	//입고완료보기
+
 	define("S_AS_M","sub_as_fixdone_mobile");
 	define("S_AS_ANALYSIS","sub_as_analysis");
+	define("S_AS_TRACKING","sub_as_tracking");
+	define("S_AS_UNPROCESSED","sub_as_unprocessed");
+	define("S_AS_REPAIR_PAID","sub_as_repair_paid");//수리비입금
+
+	define("S_STATS_AS",       "sub_stats_as");
+	define("S_STATS_SHIPMENT", "sub_stats_shipment");
+	define("S_STATS_REPORT",   "sub_stats_report");
+	define("S_STATS_QR",       "sub_stats_qr");
 	
 	define("S_BANNER", "sub_menu_banner");
 	define("S_EVENT", "sub_event");
@@ -46,10 +57,23 @@
 	define("S_SHIPMENT", "sub_shipment");//20210219
 	define("S_SHIPMENT_CHART", "sub_shipment_chart");//20210219
 	define("S_SHIPMENT_FILES", "sub_shipment_files");//20210331
+	define("S_SHIPMENT_STATS",             "sub_shipment_stats");//20260508
+	define("S_SHIPMENT_REPORT",            "sub_shipment_report");//20260508
+	define("S_SHIPMENT_DELIVERY_UPLOAD",   "sub_shipment_delivery_upload");//20260528
+	define("S_SHIPMENT_DELIVERY_DASHBOARD","sub_shipment_delivery_dashboard");//20260528
+	define("S_ADMIN_DB_INDEX",   "sub_admin_db_index");//20260511
+	define("S_ADMIN_TRACK_RUN", "sub_admin_track_run");//20260609
 
 	define("S_CANCELLATION", "sub_cancellation");//20210322
 	define("S_CANCELLATION_NEW", "sub_cancellation_new");//20210322
 	define("S_EXCHANGE", "sub_exchange");//20230515 교환출고 요청 리스트 추가
+
+	define("S_SPONSORED_LIST",     "sub_sponsored_list");     //20260520 협찬/샘플 요청 리스트
+	define("S_SPONSORED_APPROVE",  "sub_sponsored_approve");  //20260604 협찬/샘플 승인완료
+	define("S_SPONSORED_SHIPMENT", "sub_sponsored_shipment"); //20260520 협찬/샘플 출고 완료
+
+	define("S_PHOTO_EVENT_LIST",     "sub_photo_event_list");     //20260520 포토이벤트 요청 리스트
+	define("S_PHOTO_EVENT_SHIPMENT", "sub_photo_event_shipment"); //20260520 포토이벤트 출고 완료
 
 	define("S_INBOUND_LIST", "sub_inbound_list");//20211117
 	define("S_INBOUND_EDIT", "sub_inbound_edit");//20211117
@@ -79,12 +103,19 @@
 	define("TRACKING_CJ","https://trace.cjlogistics.com/next/tracking.html?wblNo=");
 	define("TRACKING_EPOST", "https://service.epost.go.kr/trace.RetrieveDomRigiTraceList.comm?displayHeader=N&sid1=");
 
+	// Flow 업무시스템 API
+	define("FLOW_API_KEY",   "20251203050955646-6ab56428-4e53-469e-b564-420e2ce4c4c9");
+	define("FLOW_SENDER_ID", "swryu@catchwell.com");
+
+	// Webhook
+	define("WEBHOOK_SECRET", "i7FTH8PmHlYX0tEKQegxMaNe2sM_VBSLxdwL1kM2pGA");
+
 	//image name
 	define("IMG_BANNER1", "banner1");
 	define("IMG_BANNER2", "banner2");
 
 	//process state = 0-접수중/1-접수완료/2-수리중/3-수리완료/4-출고/99-취소
-	$proc_state		= array("접수중","접수완료","수리중","수리완료","출고","취소","택배비입금");
+	$proc_state		= array(0=>"접수중", 1=>"접수완료", 2=>"수리중", 3=>"수리완료", 4=>"출고", 5=>"취소", 6=>"택배비입금", 7=>"입고완료", 8=>"미처리", 9=>"수리비입금");
 	define("ST_REGISTERING", 0);	//접수중
 	define("ST_REG_DONE", 1);		//접수완료
 	define("ST_FIXING", 2); 		//(수리중)
@@ -93,7 +124,10 @@
 	define("ST_AS_COMPLETED", 4);	//출고
 	//define("ST_AS_ALL", 5);	//전체검색 20230707 이건 추가는 했지만 굳이 필요없을듯
 	define("ST_DC", 6);	//택배비 입금완료건
+	define("ST_ARRIVED", 7);	//입고완료(회수택배 배송완료)
+	define("ST_UNPROCESSED", 8);	//미처리(접수중 1달 초과 자동전환)
 
+	define("ST_REPAIR_PAID", 9);	//수리비 입금완료
 	define("ST_CANCELED", 99);		//취소
 
 
