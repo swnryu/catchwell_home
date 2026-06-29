@@ -151,8 +151,8 @@
       list.innerHTML = items.map((item, i) => `
         <div class="history-item">
           <div class="history-summary" onclick="toggleDetail(${i})">
-            <span>${new Date(item.createdAt).toLocaleString('ko-KR')} &nbsp;|&nbsp; <span class="sentiment-badge ${SENTIMENT_CLASS[item.sentiment] || ''}">${SENTIMENT_LABEL[item.sentiment] || item.sentiment}</span></span>
-            <span style="color:#aaa;font-size:0.8rem">${item.review.slice(0,30)}${item.review.length > 30 ? '...' : ''} ▸</span>
+            <span>${new Date(item.createdAt).toLocaleString('ko-KR')} &nbsp;|&nbsp; <span class="sentiment-badge ${SENTIMENT_CLASS[item.sentiment] || ''}">${escHtml(SENTIMENT_LABEL[item.sentiment] || item.sentiment)}</span></span>
+            <span style="color:#aaa;font-size:0.8rem">${escHtml(item.review.slice(0,30))}${item.review.length > 30 ? '...' : ''} ▸</span>
           </div>
           <div class="history-detail" id="detail-${i}">
             <div class="history-label">리뷰</div>
@@ -180,12 +180,13 @@
 
   async function clearHistory() {
     if (!confirm('히스토리를 전부 삭제할까요?')) return;
-    await fetch('/api/history', { method: 'DELETE' });
+    const res = await fetch('/api/history', { method: 'DELETE' });
+    if (!res.ok) { alert('삭제에 실패했습니다.'); return; }
     loadHistory();
   }
 
   function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-  function escAttr(s) { return s.replace(/"/g,'&quot;'); }
+  function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
 
   loadHistory();
 </script>
