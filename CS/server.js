@@ -65,11 +65,12 @@ ${customGuide ? `\n추가 지침:\n${customGuide}` : ''}
       ]
     });
 
-    const rawText = message.content[0].text.trim();
+    const rawText = message.content[0].text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
     let parsed;
     try {
       parsed = JSON.parse(rawText);
     } catch {
+      console.error('[JSON 파싱 실패] rawText:', rawText);
       return res.status(500).json({ error: 'Claude 응답 파싱 실패. 다시 시도해주세요.' });
     }
 
