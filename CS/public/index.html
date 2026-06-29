@@ -1,5 +1,193 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><meta charset="UTF-8"><title>리뷰 답글 생성기</title></head>
-<body><h1>리뷰 답글 생성기</h1><p>준비 중...</p></body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>네이버 리뷰 답글 생성기</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6fa; color: #333; }
+    .container { max-width: 760px; margin: 0 auto; padding: 24px 16px; }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; color: #1a1a2e; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .card h2 { font-size: 0.85rem; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .toggle-btn { background: none; border: none; font-size: 0.85rem; color: #03c75a; cursor: pointer; padding: 0; margin-bottom: 8px; }
+    textarea { width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.95rem; resize: vertical; font-family: inherit; outline: none; transition: border-color 0.2s; }
+    textarea:focus { border-color: #03c75a; }
+    #reviewInput { min-height: 120px; }
+    #customGuideInput { min-height: 70px; display: none; }
+    #replyOutput { min-height: 100px; background: #f9fffe; color: #1a1a2e; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: #03c75a; color: #fff; width: 100%; justify-content: center; margin-top: 10px; }
+    .btn-copy { background: #f0f0f0; color: #333; font-size: 0.85rem; padding: 6px 14px; }
+    .btn-delete { background: none; border: 1px solid #e0e0e0; color: #999; font-size: 0.8rem; padding: 5px 12px; border-radius: 6px; cursor: pointer; }
+    .reply-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .sentiment-badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .badge-positive { background: #e6f7ed; color: #03c75a; }
+    .badge-negative { background: #fef0f0; color: #e53935; }
+    .badge-neutral { background: #f0f0f0; color: #888; }
+    .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .history-item { border: 1px solid #e8e8e8; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    .history-summary { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; cursor: pointer; background: #fafafa; font-size: 0.88rem; }
+    .history-summary:hover { background: #f0f0f0; }
+    .history-detail { display: none; padding: 12px 14px; background: #fff; border-top: 1px solid #e8e8e8; font-size: 0.88rem; }
+    .history-detail.open { display: block; }
+    .history-label { font-size: 0.75rem; color: #888; margin-bottom: 3px; }
+    .history-text { white-space: pre-wrap; line-height: 1.5; margin-bottom: 10px; }
+    .error-msg { color: #e53935; font-size: 0.88rem; margin-top: 8px; }
+    .copy-success { color: #03c75a; font-size: 0.82rem; margin-left: 8px; }
+    .spinner { display: none; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>네이버 리뷰 답글 생성기</h1>
+
+  <div class="card">
+    <button class="toggle-btn" onclick="toggleGuide()">▸ 커스텀 지침 (선택)</button>
+    <textarea id="customGuideInput" placeholder="예) 제품 관련 문의는 고객센터(1588-0000)로 안내해주세요."></textarea>
+  </div>
+
+  <div class="card">
+    <h2>고객 리뷰</h2>
+    <textarea id="reviewInput" placeholder="네이버 리뷰 내용을 여기에 붙여넣으세요..."></textarea>
+    <div id="generateError" class="error-msg"></div>
+    <button class="btn btn-primary" id="generateBtn" onclick="generateReply()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btnText">답글 생성</span>
+    </button>
+  </div>
+
+  <div class="card" id="replyCard" style="display:none">
+    <div class="reply-header">
+      <h2>생성된 답글</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="sentiment-badge" id="sentimentBadge"></span>
+        <button class="btn btn-copy" onclick="copyReply()">복사</button>
+        <span class="copy-success" id="copySuccess"></span>
+      </div>
+    </div>
+    <textarea id="replyOutput" readonly></textarea>
+  </div>
+
+  <div class="card">
+    <div class="history-header">
+      <h2>히스토리 (최근 20건)</h2>
+      <button class="btn-delete" onclick="clearHistory()">전체 삭제</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+  const SENTIMENT_LABEL = { positive: '긍정', negative: '부정', neutral: '중립' };
+  const SENTIMENT_CLASS = { positive: 'badge-positive', negative: 'badge-negative', neutral: 'badge-neutral' };
+
+  function toggleGuide() {
+    const el = document.getElementById('customGuideInput');
+    const btn = document.querySelector('.toggle-btn');
+    const open = el.style.display === 'block';
+    el.style.display = open ? 'none' : 'block';
+    btn.textContent = (open ? '▸' : '▾') + ' 커스텀 지침 (선택)';
+  }
+
+  async function generateReply() {
+    const review = document.getElementById('reviewInput').value.trim();
+    const customGuide = document.getElementById('customGuideInput').value.trim();
+    const errEl = document.getElementById('generateError');
+    errEl.textContent = '';
+
+    if (!review) { errEl.textContent = '리뷰 내용을 입력해주세요.'; return; }
+
+    const btn = document.getElementById('generateBtn');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btnText');
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    btnText.textContent = '생성 중...';
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review, customGuide })
+      });
+      const data = await res.json();
+      if (!res.ok) { errEl.textContent = data.error || '오류가 발생했습니다.'; return; }
+
+      document.getElementById('replyOutput').value = data.reply;
+      const badge = document.getElementById('sentimentBadge');
+      badge.textContent = SENTIMENT_LABEL[data.sentiment] || data.sentiment;
+      badge.className = 'sentiment-badge ' + (SENTIMENT_CLASS[data.sentiment] || '');
+      document.getElementById('replyCard').style.display = 'block';
+      document.getElementById('copySuccess').textContent = '';
+      loadHistory();
+    } catch {
+      errEl.textContent = '서버 연결 오류가 발생했습니다.';
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = '답글 생성';
+    }
+  }
+
+  function copyReply() {
+    const text = document.getElementById('replyOutput').value;
+    navigator.clipboard.writeText(text).then(() => {
+      const el = document.getElementById('copySuccess');
+      el.textContent = '복사됨!';
+      setTimeout(() => { el.textContent = ''; }, 2000);
+    });
+  }
+
+  async function loadHistory() {
+    try {
+      const res = await fetch('/api/history');
+      const items = await res.json();
+      const list = document.getElementById('historyList');
+      if (!items.length) { list.innerHTML = '<p style="color:#aaa;font-size:0.85rem">아직 생성된 답글이 없습니다.</p>'; return; }
+      list.innerHTML = items.map((item, i) => `
+        <div class="history-item">
+          <div class="history-summary" onclick="toggleDetail(${i})">
+            <span>${new Date(item.createdAt).toLocaleString('ko-KR')} &nbsp;|&nbsp; <span class="sentiment-badge ${SENTIMENT_CLASS[item.sentiment] || ''}">${SENTIMENT_LABEL[item.sentiment] || item.sentiment}</span></span>
+            <span style="color:#aaa;font-size:0.8rem">${item.review.slice(0,30)}${item.review.length > 30 ? '...' : ''} ▸</span>
+          </div>
+          <div class="history-detail" id="detail-${i}">
+            <div class="history-label">리뷰</div>
+            <div class="history-text">${escHtml(item.review)}</div>
+            <div class="history-label">답글</div>
+            <div class="history-text">${escHtml(item.reply)}</div>
+            <button class="btn btn-copy" onclick="copyText(${i}, this)" data-text="${escAttr(item.reply)}">복사</button>
+          </div>
+        </div>`).join('');
+    } catch { /* 무시 */ }
+  }
+
+  function toggleDetail(i) {
+    const el = document.getElementById('detail-' + i);
+    el.classList.toggle('open');
+  }
+
+  function copyText(i, btn) {
+    const text = btn.getAttribute('data-text');
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '복사됨!';
+      setTimeout(() => { btn.textContent = '복사'; }, 2000);
+    });
+  }
+
+  async function clearHistory() {
+    if (!confirm('히스토리를 전부 삭제할까요?')) return;
+    await fetch('/api/history', { method: 'DELETE' });
+    loadHistory();
+  }
+
+  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escAttr(s) { return s.replace(/"/g,'&quot;'); }
+
+  loadHistory();
+</script>
+</body>
 </html>
