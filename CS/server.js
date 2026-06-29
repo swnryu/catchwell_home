@@ -95,6 +95,16 @@ ${customGuide ? `\n추가 지침:\n${customGuide}` : ''}
   }
 });
 
+app.get('/api/history', (req, res) => {
+  const history = loadHistory();
+  res.json(history.slice(0, 20));
+});
+
+app.delete('/api/history', (req, res) => {
+  saveHistory([]);
+  res.json({ ok: true });
+});
+
 app.listen(PORT, () => {
   console.log(`서버 시작: http://localhost:${PORT}`);
 });
