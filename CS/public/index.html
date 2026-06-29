@@ -11,7 +11,11 @@
     h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; color: #1a1a2e; }
     .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
     .card h2 { font-size: 0.85rem; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-    .toggle-btn { background: none; border: none; font-size: 0.85rem; color: #03c75a; cursor: pointer; padding: 0; margin-bottom: 8px; }
+    .guide-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .toggle-btn { background: none; border: none; font-size: 0.85rem; color: #03c75a; cursor: pointer; padding: 0; }
+    .btn-save { background: #03c75a; color: #fff; border: none; border-radius: 6px; padding: 4px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .btn-save:hover { opacity: 0.85; }
+    .save-success { color: #03c75a; font-size: 0.82rem; margin-left: 6px; }
     textarea { width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.95rem; resize: vertical; font-family: inherit; outline: none; transition: border-color 0.2s; }
     textarea:focus { border-color: #03c75a; }
     #reviewInput { min-height: 120px; }
@@ -46,7 +50,13 @@
   <h1>네이버 리뷰 답글 생성기</h1>
 
   <div class="card">
-    <button class="toggle-btn" onclick="toggleGuide()">▸ 커스텀 지침 (선택)</button>
+    <div class="guide-header">
+      <button class="toggle-btn" onclick="toggleGuide()">▸ 커스텀 지침 (선택)</button>
+      <div id="guideSaveArea" style="display:none">
+        <button class="btn-save" onclick="saveGuide()">저장</button>
+        <span class="save-success" id="saveSuccess"></span>
+      </div>
+    </div>
     <textarea id="customGuideInput" placeholder="예) 제품 관련 문의는 고객센터(1588-0000)로 안내해주세요."></textarea>
   </div>
 
@@ -88,9 +98,24 @@
   function toggleGuide() {
     const el = document.getElementById('customGuideInput');
     const btn = document.querySelector('.toggle-btn');
+    const saveArea = document.getElementById('guideSaveArea');
     const open = el.style.display === 'block';
     el.style.display = open ? 'none' : 'block';
+    saveArea.style.display = open ? 'none' : 'flex';
     btn.textContent = (open ? '▸' : '▾') + ' 커스텀 지침 (선택)';
+  }
+
+  function saveGuide() {
+    const text = document.getElementById('customGuideInput').value;
+    localStorage.setItem('cw_custom_guide', text);
+    const el = document.getElementById('saveSuccess');
+    el.textContent = '저장됨!';
+    setTimeout(() => { el.textContent = ''; }, 2000);
+  }
+
+  function loadSavedGuide() {
+    const saved = localStorage.getItem('cw_custom_guide');
+    if (saved) document.getElementById('customGuideInput').value = saved;
   }
 
   async function generateReply() {
@@ -188,6 +213,7 @@
   function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
 
+  loadSavedGuide();
   loadHistory();
 </script>
 </body>
