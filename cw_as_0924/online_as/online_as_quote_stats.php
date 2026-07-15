@@ -220,7 +220,7 @@ function qs_render_detail_table($rows) {
         <?php else: foreach ($rows as $r): ?>
         <tr>
             <td class="text-center">
-                <a href="online_as_edit.php?idx=<?=$r['idx']?>&from=<?=S_STATS_QUOTE?>"><?=htmlspecialchars($r['reg_num'])?></a>
+                <a href="online_as_view.php?idx=<?=$r['idx']?>&from=<?=S_STATS_QUOTE?>"><?=htmlspecialchars($r['reg_num'])?></a>
             </td>
             <td class="text-center"><?=$r['issued_at']?></td>
             <td class="text-center"><?=number_format($r['price'])?>원</td>
