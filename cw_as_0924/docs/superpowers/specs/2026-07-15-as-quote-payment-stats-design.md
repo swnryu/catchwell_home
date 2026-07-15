@@ -107,11 +107,17 @@ LEFT JOIN (
     WHERE new_state = 9
     GROUP BY as_idx
 ) p ON p.as_idx = a.idx
-LEFT JOIN TB_INICIS_RETURN v ON v.P_OID = CONCAT(a.reg_num, '_R')
+LEFT JOIN (
+    SELECT P_OID, MAX(CAST(P_AMT AS UNSIGNED)) as P_AMT
+    FROM TB_INICIS_RETURN
+    GROUP BY P_OID
+) v ON v.P_OID = CONCAT(a.reg_num, '_R')
 WHERE a.process_state NOT IN (5, 99)
   AND q.issued_at >= DATE_SUB(NOW(), INTERVAL 400 DAY)
 ORDER BY q.issued_at DESC
 ```
+
+`TB_INICIS_RETURN`을 그대로 조인하면 안 된다 — 운영 DB 확인 결과 같은 `P_OID`로 중복 행이 존재해서(예: 이니시스 웹훅 재시도, `reg_num='260704-011'`건에 동일 금액 3행) 그대로 조인 시 견적 건이 행 단위로 뻥튀기된다. 반드시 `P_OID`로 `GROUP BY`한 서브쿼리를 거쳐 1:1 조인해야 한다 (위 쿼리에 반영됨).
 
 PHP에서 각 행마다 입금액을 `paid_at`이 있으면 `paid_amt_actual > 0 ? paid_amt_actual : price`, 없으면 0으로 계산한 뒤 일/주/월 버킷(배열 키)에 누적한다.
 
@@ -119,7 +125,7 @@ PHP에서 각 행마다 입금액을 `paid_at`이 있으면 `paid_amt_actual > 0
 
 - 견적발행 이력(`new_state=2`)이 없는 건은 INNER JOIN에 의해 자연히 집계 대상에서 제외됨 (아직 견적을 발행하지 않은 접수 건).
 - 취소 건 제외 (2.2 참조).
-- `TB_INICIS_RETURN` 조회 실패/데이터 없음 시 견적금액으로 폴백 (3.3 참조).
+- `TB_INICIS_RETURN`은 동일 `P_OID` 중복 행이 실제로 존재하므로 반드시 `GROUP BY P_OID` 서브쿼리를 거쳐 조인한다 (4.4 참조). 조회 실패/데이터 없음 시 견적금액으로 폴백 (3.3 참조).
 - `as_process_history` 자체가 2026-05-22부터 쌓였으므로, 그 이전에 발행된 견적은 이 통계에 잡히지 않는다. 페이지 상단에 "2026-05-22 이후 발행된 견적부터 집계됩니다" 안내 문구를 표시한다.
 
 ## 6. 범위 밖 (Out of scope)
