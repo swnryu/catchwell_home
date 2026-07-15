@@ -216,6 +216,7 @@ session_cache_limiter('private_no_expire');
 			    <ul class="dropdown-menu" role="menu">
 			        <? if (($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
 			        <li><a href="<?=$site_url?>/online_as/online_as_stats.php">AS 통계</a></li>
+			        <li><a href="<?=$site_url?>/online_as/online_as_quote_stats.php">AS 견적/입금 통계</a></li>
 			        <? } ?>
 			        <? if (($PERMISSION & PERMISSION_GROUP_SHIPMENT) == PERMISSION_GROUP_SHIPMENT || ($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
 			        <li><a href="<?=$site_url?>/shipment/shipment_stats.php">출고 통계</a></li>
