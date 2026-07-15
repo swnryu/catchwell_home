@@ -41,6 +41,7 @@
 	define("S_AS_REPAIR_PAID","sub_as_repair_paid");//수리비입금
 
 	define("S_STATS_AS",       "sub_stats_as");
+	define("S_STATS_QUOTE",    "sub_stats_quote");
 	define("S_STATS_SHIPMENT", "sub_stats_shipment");
 	define("S_STATS_REPORT",   "sub_stats_report");
 	define("S_STATS_QR",       "sub_stats_qr");

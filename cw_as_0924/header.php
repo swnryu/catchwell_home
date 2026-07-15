@@ -118,10 +118,12 @@ session_cache_limiter('private_no_expire');
 					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_DC;?>">수거 택배비 입금</a></li>
                     <li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_REG_DONE;?>">접수완료 보기</a></li>
 					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_FIXING;?>">견적완료 보기</a></li>
+					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_REPAIR_PAID;?>">수리비 입금</a></li>
 					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_FIX_DONE;?>">수리완료 보기</a></li>
 
 					<li><a href="<?=$site_url?>/online_as/online_as_shipment.php">AS 출고완료</a></li><!--20230707 출고완료 추가 -->
 					<li><a href="<?=$site_url?>/online_as/online_as_report.php">AS 전체 검색</a></li><!--20230707 전체검색 -->
+					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_UNPROCESSED;?>">미집화 보기</a></li>
 
 					<? if (($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
 					<!--li><a href="<?=$site_url?>/online_as/online_as_analysis.php">AS 통계 분석</a></li--> <!--20210128-->
@@ -143,6 +145,11 @@ session_cache_limiter('private_no_expire');
 					<li style="margin-top:5px; border-top:1px solid #ccc;"><a href="<?=$site_url?>/internal_orders/cs_internal_orders_edit.php" >사내판매 출고 등록</a></li><!--20211203-->
 					<li><a href="<?=$site_url?>/internal_orders/cs_internal_orders_list.php">사내판매 출고 요청</a></li>
 					<li><a href="<?=$site_url?>/internal_orders/cs_internal_orders_list.php?shipment=1">사내판매 출고 완료</a></li> <!--20211206-->
+					<li style="margin-top:5px; border-top:1px solid #ccc;"><a href="<?=$site_url?>/sponsored/cs_sponsored_list.php">협찬/샘플 요청 리스트</a></li><!--20260520-->
+					<li><a href="<?=$site_url?>/sponsored/cs_sponsored_list.php?approve=1">협찬/샘플 승인 완료</a></li><!--20260604-->
+					<li><a href="<?=$site_url?>/sponsored/cs_sponsored_list.php?shipment=1">협찬/샘플 출고 완료</a></li><!--20260520-->
+					<li style="margin-top:5px; border-top:1px solid #ccc;"><a href="<?=$site_url?>/photo_event/cs_photo_event_list.php">포토이벤트 요청 리스트 등록</a></li><!--20260520-->
+					<li><a href="<?=$site_url?>/photo_event/cs_photo_event_list.php?shipment=1">포토이벤트 출고 완료</a></li><!--20260520-->
 				</ul>
 			   </li>
 			<? } ?>
@@ -174,7 +181,15 @@ session_cache_limiter('private_no_expire');
 			<? } ?>
 
 			<? if (($PERMISSION & PERMISSION_GROUP_SHIPMENT) == PERMISSION_GROUP_SHIPMENT) { ?>
-			<li><a href="<?=$site_url?>/shipment/shipment_new.php">출고 관리</a></li>
+			<li class="dropdown">
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">출고 관리 <span class="caret"></span></a>
+			    <ul class="dropdown-menu" role="menu">
+					<li><a href="<?=$site_url?>/shipment/shipment_new.php">출고 처리</a></li>
+					<li><a href="<?=$site_url?>/shipment/shipment.php">출고 완료 전체 조회</a></li>
+					<li style="margin-top:5px;border-top:1px solid #ccc;"><a href="<?=$site_url?>/shipment/shipment_delivery_upload.php">배송리스트 업로드</a></li>
+					<li><a href="<?=$site_url?>/shipment/shipment_delivery_dashboard.php">배송 대시보드</a></li>
+			    </ul>
+			</li>
 			<? } ?> <!--20210219-->
 
 	
@@ -187,9 +202,28 @@ session_cache_limiter('private_no_expire');
 					<li><a href="<?=$site_url?>/sms/sms_view.php">메시지</a></li>
 					<li><a href="<?=$site_url?>/cert/cert_query.php">인증번호 검색</a></li>
 					<li><a href="<?=$site_url?>/tracking/tracking.php">택배조회</a></li>
+					<li><a href="<?=$site_url?>/online_as/online_as_tracking.php">CJ택배조회</a></li>
 					<li><a href="http://webhard.catchwell.com/preview/">제품별 상세페이지</a></li>
 					<!--li><a href="<?=$site_url?>/cs_inbound/cs_inbound_chart.php">CS 콜 통계 분석</a></li-->
 					<!--li><a href="<?=$site_url?>/online_as/online_as_analysis.php">AS 통계 분석</a></li--> <!--20210128-->
+			    </ul>
+			</li>
+			<? } ?>
+
+			<? if ($PERMISSION > PERMISSION_NONE) { ?>
+			<li class="dropdown">
+			    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">통계 <span class="caret"></span></a>
+			    <ul class="dropdown-menu" role="menu">
+			        <? if (($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
+			        <li><a href="<?=$site_url?>/online_as/online_as_stats.php">AS 통계</a></li>
+			        <? } ?>
+			        <? if (($PERMISSION & PERMISSION_GROUP_SHIPMENT) == PERMISSION_GROUP_SHIPMENT || ($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
+			        <li><a href="<?=$site_url?>/shipment/shipment_stats.php">출고 통계</a></li>
+			        <li><a href="<?=$site_url?>/shipment/shipment_report.php">주간 리포트</a></li>
+			        <? } ?>
+			        <? if (($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
+			        <li><a href="<?=$site_url?>/qr/qr_stats.php">QR 통계</a></li>
+			        <? } ?>
 			    </ul>
 			</li>
 			<? } ?>
@@ -253,11 +287,12 @@ session_cache_limiter('private_no_expire');
 					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_DC;?>" class="list-group-item <?if($menu==S_AS_DC){?>active<?}?>">수거 택배비 입금</a>
 					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_REG_DONE;?>" class="list-group-item <?if($menu==S_AS_REGDONE){?>active<?}?>">접수완료 보기</a>
 					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_FIXING;?>" class="list-group-item <?if($menu==S_AS_FIXING){?>active<?}?>">견적완료 보기</a>
+					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_REPAIR_PAID;?>" class="list-group-item <?if($menu==S_AS_REPAIR_PAID){?>active<?}?>">수리비 입금</a>
 					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_FIX_DONE;?>" class="list-group-item <?if($menu==S_AS_FIXDONE){?>active<?}?>">수리완료 보기</a>
 
 					<a href="<?=$site_url?>/online_as/online_as_shipment.php" class="list-group-item <?if($menu==S_AS_SHIPMENT){?>active<?}?>">AS 출고완료</a><!--20230707-->
 					<a href="<?=$site_url?>/online_as/online_as_report.php" class="list-group-item <?if($menu==S_AS_REPORT){?>active<?}?>">AS 전체 검색</a><!--20230707-->
-
+					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_UNPROCESSED;?>" class="list-group-item <?if($menu==S_AS_UNPROCESSED){?>active<?}?>">미집화 보기</a>
 					<a href="<?=$site_url?>/online_as/template/user_manual_as.pdf" class="list-group-item " target="_blank">사용자 매뉴얼</a><!-- 20210803 -->
 				<?}?>
 
@@ -273,6 +308,15 @@ session_cache_limiter('private_no_expire');
 					<a href="<?=$site_url?>/internal_orders/cs_internal_orders_edit.php" class="list-group-item <?if($menu==S_PARTS_EDIT){?>active<?}?>">사내판매 출고 등록</a>
 					<a href="<?=$site_url?>/internal_orders/cs_internal_orders_list.php" class="list-group-item <?if($menu==S_PARTS_LIST){?>active<?}?>">사내판매 출고 요청</a>
 					<a href="<?=$site_url?>/internal_orders/cs_internal_orders_list.php?shipment=1" class="list-group-item <?if($menu==S_PARTS_SHIPMENT){?>active<?}?>">사내판매 출고 완료</a> <!--20211206-->
+
+					<div class="panel-heading" style="margin-top:0px;"><h3 class="panel-title">협찬/샘플 출고 관리</h3></div><!-- 20260520 -->
+					<a href="<?=$site_url?>/sponsored/cs_sponsored_list.php" class="list-group-item <?if($menu==S_SPONSORED_LIST){?>active<?}?>">요청 리스트</a>
+					<a href="<?=$site_url?>/sponsored/cs_sponsored_list.php?approve=1" class="list-group-item <?if($menu==S_SPONSORED_APPROVE){?>active<?}?>">승인 완료</a>
+					<a href="<?=$site_url?>/sponsored/cs_sponsored_list.php?shipment=1" class="list-group-item <?if($menu==S_SPONSORED_SHIPMENT){?>active<?}?>">출고 완료</a>
+
+					<div class="panel-heading" style="margin-top:0px;"><h3 class="panel-title">포토이벤트 출고 관리</h3></div><!-- 20260520 -->
+					<a href="<?=$site_url?>/photo_event/cs_photo_event_list.php" class="list-group-item <?if($menu==S_PHOTO_EVENT_LIST){?>active<?}?>">요청 리스트 등록</a>
+					<a href="<?=$site_url?>/photo_event/cs_photo_event_list.php?shipment=1" class="list-group-item <?if($menu==S_PHOTO_EVENT_SHIPMENT){?>active<?}?>">요청 리스트 출고 완료</a>
 
 				<?}?>
 
@@ -316,9 +360,26 @@ session_cache_limiter('private_no_expire');
 					<a href="<?=$site_url?>/shipment/shipment.php" class="list-group-item <?if($menu==S_SHIPMENT){?>active<?}?>">출고 완료 전체 조회</a>
 					<a href="<?=$site_url?>/shipment/shipment_files.php" class="list-group-item <?if($menu==S_SHIPMENT_FILES){?>active<?}?>">배송리스트 파일 조회</a>
 					<a href="<?=$site_url?>/admin/management_delivery_fee.php" class="list-group-item <?if($menu==S_ADMIN_DELIVERY){?>active<?}?>">출고운임 관리</a>
-					<a href="<?=$site_url?>/shipment/template/user_manual_shipment.pdf" class="list-group-item " target="_blank">사용자 매뉴얼</a><!-- 20210722 -->
-					<!--a href="<?=$site_url?>/shipment/shipment_chart.php" class="list-group-item <?if($menu==S_SHIPMENT_CHART){?>active<?}?>">출고 데이터 차트</a-->
+					<div class="panel-heading" style="margin-top:0;"><h3 class="panel-title">배송리스트</h3></div>
+					<a href="<?=$site_url?>/shipment/shipment_delivery_upload.php" class="list-group-item <?if($menu==S_SHIPMENT_DELIVERY_UPLOAD){?>active<?}?>">배송리스트 업로드</a>
+					<a href="<?=$site_url?>/shipment/shipment_delivery_dashboard.php" class="list-group-item <?if($menu==S_SHIPMENT_DELIVERY_DASHBOARD){?>active<?}?>">배송 대시보드</a>
+					<a href="<?=$site_url?>/shipment/template/user_manual_shipment.pdf" class="list-group-item " target="_blank">사용자 매뉴얼</a>
 				<?}?> <!--20210219-->
+
+				<?if( $mod == M_STATS ){?>
+					<div class="panel-heading"><h3 class="panel-title">통계</h3></div>
+					<? if (($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
+					<a href="<?=$site_url?>/online_as/online_as_stats.php" class="list-group-item <?if($menu==S_STATS_AS){?>active<?}?>">AS 통계</a>
+					<a href="<?=$site_url?>/online_as/online_as_quote_stats.php" class="list-group-item <?if($menu==S_STATS_QUOTE){?>active<?}?>">AS 견적/입금 통계</a>
+					<? } ?>
+					<? if (($PERMISSION & PERMISSION_GROUP_SHIPMENT) == PERMISSION_GROUP_SHIPMENT || ($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
+					<a href="<?=$site_url?>/shipment/shipment_stats.php" class="list-group-item <?if($menu==S_STATS_SHIPMENT){?>active<?}?>">출고 통계</a>
+					<a href="<?=$site_url?>/shipment/shipment_report.php" class="list-group-item <?if($menu==S_STATS_REPORT){?>active<?}?>">주간 리포트</a>
+					<? } ?>
+					<? if (($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
+					<a href="<?=$site_url?>/qr/qr_stats.php" class="list-group-item <?if($menu==S_STATS_QR){?>active<?}?>">QR 통계</a>
+					<? } ?>
+				<?}?>
 
 				<?if( $mod == M_SETTING ){?>
 					<div class="panel-heading"><h3 class="panel-title">설정</h3></div>
@@ -328,6 +389,8 @@ session_cache_limiter('private_no_expire');
 					<div class="panel-heading" style="margin-top:0px;"><h3 class="panel-title">관리자 전용</h3></div>
 					<a href="<?=$site_url?>/admin/management_id.php" class="list-group-item <?if($menu==S_ADMIN_ID){?>active<?}?>">관리자용 계정 관리</a>
 					<a href="<?=$site_url?>/admin/management_product_category.php" class="list-group-item <?if($menu==S_ADMIN_PRODUCT){?>active<?}?>">제품 카테고리 관리</a>
+					<a href="<?=$site_url?>/admin/management_db_index.php" class="list-group-item <?if($menu==S_ADMIN_DB_INDEX){?>active<?}?>">DB 인덱스 관리</a>
+					<a href="<?=$site_url?>/online_as/online_as_track_run.php" class="list-group-item <?if($menu==S_ADMIN_TRACK_RUN){?>active<?}?>" target="_blank">CJ배송추적 수동실행</a>
 					<? } ?>
 				<?}?>
 			<!-- 20240614 시계추가 -->
