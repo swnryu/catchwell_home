@@ -9,6 +9,9 @@ $row = $db->object("as_parcel_service","where idx='$idx'");
 
 $row3 = $db->object("TB_INICIS_RETURN","where P_OID='$row->reg_num'");
 $row4 = $db->object("TB_INICIS_NOTI","where P_OID='$row->reg_num'");
+$repair_oid = $row->reg_num . '_R';
+$row5 = $db->object("TB_INICIS_RETURN","where P_OID='$repair_oid'");
+$row6 = $db->object("TB_INICIS_NOTI",  "where P_OID='$repair_oid'");
 //20210213-2회이상 중복접수검색 
 //20210220-01000000000 제외
 $query2="select count(*) as cnt from as_parcel_service where process_state=4 and customer_phone='$row->customer_phone' and customer_phone!='01000000000'";
@@ -126,7 +129,24 @@ $row2 = mysqli_fetch_object($rs2);
 	<tr>
 		<th>송장번호(회수)</th>
 		<? $tracking_num = preg_replace("/[^0-9]*/s", "", $row->parcel_num); ?>
-		<td><a href="<? if (strlen($tracking_num)==12) {echo constant('TRACKING_CJ').$tracking_num;} else {echo constant('TRACKING_EPOST').$tracking_num;} ?>" target="_blank"><?echo $row->parcel_num ?></a></td>
+		<td><a href="#" onclick="window.open('<? if (strlen($tracking_num)==12) {echo constant('TRACKING_CJ').$tracking_num;} else {echo constant('TRACKING_EPOST').$tracking_num;} ?>','tracking','width=1000,height=700,scrollbars=yes,resizable=yes');return false;"><?echo $row->parcel_num ?></a></td>
+	</tr>
+	<tr>
+		<th>배송상태(회수)</th>
+		<td>
+		<?
+		if ($row->parcel_num == '') {
+			echo '<span class="label label-default">송장 없음</span>';
+		} else {
+			$ts = isset($row->return_track_status) ? (int)$row->return_track_status : 0;
+			$at = isset($row->return_track_at)     ? $row->return_track_at          : '';
+			if     ($ts == 2) { echo '<span class="label label-success">배송완료</span>'; }
+			else if($ts == 1) { echo '<span class="label label-primary">배송중</span>'; }
+			else              { echo '<span class="label label-default">미집화</span>'; }
+			if ($at) { echo ' <small class="text-muted">마지막조회: ' . $at . '</small>'; }
+		}
+		?>
+		</td>
 	</tr>
 	<tr>
 		<th>배송 메시지(회수)</th>
@@ -154,7 +174,7 @@ $row2 = mysqli_fetch_object($rs2);
 	<tr>
 		<th>송장번호(출고)</th>
 		<? $tracking_num_return = preg_replace("/[^0-9]*/s", "", $row->parcel_num_return); ?>
-		<td><a href="<? echo constant('TRACKING_CJ').$tracking_num_return?>" target="_blank"><?echo $row->parcel_num_return ?></a></td>
+		<td><a href="#" onclick="window.open('<?echo constant('TRACKING_CJ').$tracking_num_return?>','tracking','width=1000,height=700,scrollbars=yes,resizable=yes');return false;"><?echo $row->parcel_num_return ?></a></td>
 	</tr>
 	<tr>
 		<th>배송 메시지(출고)</th>
@@ -209,6 +229,57 @@ $row2 = mysqli_fetch_object($rs2);
 		?>
 		</td>
 	</tr>
+	</tbody>
+	</table>
+
+<h5>수리비 입금 정보</h5>
+	<table class="table table-bordered">
+	<colgroup>
+	<col width="15%">
+	<col width="*">
+	</colgroup>
+	<tbody>
+	<?if($row5):?>
+	<tr>
+		<th>입금자명</th>
+		<td><?echo $row5->P_UNAME?></td>
+	</tr>
+	<tr>
+		<th>거래금액</th>
+		<td><?echo number_format($row5->P_AMT)?>원</td>
+	</tr>
+	<tr>
+		<th>결제은행</th>
+		<td><?echo $row5->P_FN_NM?></td>
+	</tr>
+	<tr>
+		<th>가상계좌번호</th>
+		<td><?echo $row5->P_VACT_NUM?></td>
+	</tr>
+	<tr>
+		<th>입금여부</th>
+		<td><?
+		if($row6 && $row6->P_AUTH_DT){
+			$timestamp = $row6->P_AUTH_DT;
+			$year   = substr($timestamp, 0, 4);
+			$month  = substr($timestamp, 4, 2);
+			$day    = substr($timestamp, 6, 2);
+			$hour   = substr($timestamp, 8, 2);
+			$minute = substr($timestamp, 10, 2);
+			$second = substr($timestamp, 12, 2);
+			$date = DateTime::createFromFormat('Y-m-d H:i:s', "$year-$month-$day $hour:$minute:$second");
+			echo "<span style='color: red;'>입금완료</span>, 입금시간 : " . $date->format('Y-m-d H:i:s');
+		} else {
+			echo "<span style='color: blue;'>미입금</span>";
+		}
+		?>
+		</td>
+	</tr>
+	<?else:?>
+	<tr>
+		<td colspan="2"><span style="color:#999;">가상계좌 미발급</span></td>
+	</tr>
+	<?endif?>
 	</tbody>
 	</table>
 
@@ -315,5 +386,44 @@ if ($cnt>0) {
 		</tr>
 	</table>
 
+
+<?php
+// AS 진행 히스토리
+$state_names = [0=>'신규접수', 1=>'접수완료', 2=>'견적완료', 3=>'수리완료', 4=>'출고완료', 5=>'취소', 6=>'택배비입금', 7=>'배송완료', 8=>'미처리', 9=>'수리비입금', 10=>'폐기요청', 11=>'반송요청'];
+$state_colors = [0=>'#aaa', 1=>'#337ab7', 2=>'#f0ad4e', 3=>'#5bc0de', 4=>'#5cb85c', 5=>'#d9534f', 6=>'#9b59b6', 7=>'#27ae60', 8=>'#c0392b', 9=>'#e67e22', 10=>'#795548', 11=>'#607d8b'];
+$history_rs = mysqli_query($db->db_conn, "SELECT * FROM as_process_history WHERE as_idx=$idx ORDER BY changed_at ASC");
+$history = [];
+while ($h = mysqli_fetch_assoc($history_rs)) $history[] = $h;
+?>
+<?php if (!empty($history)): ?>
+<h5 style="margin-top:30px;">진행 히스토리</h5>
+<div style="padding:10px 0;">
+<?php foreach ($history as $i => $h):
+    $col  = isset($state_colors[$h['new_state']]) ? $state_colors[$h['new_state']] : '#aaa';
+    $name = isset($state_names[$h['new_state']]) ? $state_names[$h['new_state']] : $h['new_state'];
+    $prev = ($h['prev_state'] !== null && isset($state_names[$h['prev_state']])) ? $state_names[$h['prev_state']] : '최초접수';
+?>
+<div style="display:flex;align-items:flex-start;margin-bottom:12px;">
+    <div style="flex:0 0 18px;margin-top:3px;">
+        <div style="width:14px;height:14px;border-radius:50%;background:<?= $col ?>;border:2px solid <?= $col ?>;"></div>
+        <?php if ($i < count($history)-1): ?>
+        <div style="width:2px;height:26px;background:#ddd;margin-left:6px;"></div>
+        <?php endif; ?>
+    </div>
+    <div style="margin-left:12px;line-height:1.5;">
+        <span style="font-weight:700;color:<?= $col ?>;font-size:13px;"><?= $name ?></span>
+        <?php if ($h['prev_state'] !== null): ?>
+        <span style="font-size:11px;color:#999;margin-left:6px;">(<?= $prev ?> →)</span>
+        <?php endif; ?>
+        <br>
+        <span style="font-size:12px;color:#666;"><?= date('Y-m-d H:i', strtotime($h['changed_at'])) ?></span>
+        <?php if ($h['changed_by']): ?>
+        <span style="font-size:12px;color:#999;margin-left:8px;"><?= htmlspecialchars($h['changed_by']) ?></span>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <? include('../footer.php');?>
