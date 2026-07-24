@@ -544,7 +544,7 @@ function submitDisposeReturn(action) {
     var label = (action === 'dispose') ? '폐기' : '반송';
     if (!confirm('정말 ' + label + ' 신청하시겠습니까? 신청 후에는 취소할 수 없습니다.')) { return; }
     var f = document.disposeReturnForm;
-    f.action.value = action;
+    f.elements.action.value = action;
     f.submit();
 }
 
