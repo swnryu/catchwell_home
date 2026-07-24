@@ -519,7 +519,7 @@ body {
     <!-- ── 폐기/반송 신청 (가상계좌 발급 여부와 무관하게 항상 노출) ── -->
     <div class="card" style="padding:16px 20px;">
         <p style="font-size:13px; color:var(--gray-600); margin-bottom:12px;">수리를 원하지 않으시면 아래에서 신청해 주세요. 신청 후에는 취소할 수 없습니다.</p>
-        <form name="disposeReturnForm" method="post" action="online_as_dispose_return_ok.php">
+        <form name="disposeReturnForm" method="post" action="https://csadmin.catchwell.com/cw_as_265/online_as/online_as_dispose_return_ok.php">
             <input type="hidden" name="reg_num" value="<?php echo htmlspecialchars($searchData); ?>">
             <input type="hidden" name="searchValuePhone" value="<?php echo htmlspecialchars($searchValuePhone); ?>">
             <input type="hidden" name="action" value="">
