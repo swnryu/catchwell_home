@@ -11,6 +11,11 @@ switch($state) {
 	case ST_FIX_DONE:		$menu	= S_AS_FIXDONE; break;
 	case ST_AS_COMPLETED: 	$menu	= S_AS_COMPLETED; break;
 	case ST_DC: 			$menu	= S_AS_DC; break;
+	case ST_ARRIVED:		$menu	= S_AS_ARRIVED; break;
+	case ST_UNPROCESSED:	$menu	= S_AS_UNPROCESSED; break;
+	case ST_REPAIR_PAID:	$menu	= S_AS_REPAIR_PAID; break;
+	case ST_DISPOSAL_REQUESTED: $menu = S_AS_DISPOSAL; break;
+	case ST_RETURN_REQUESTED:   $menu = S_AS_RETURN; break;
 	default: 				$menu	= S_AS_REGISTERING; break;
 }
 
@@ -24,14 +29,9 @@ include("../header.php");
 	if( !$startPage ) { $startPage = 0; }
 
 	$totalPage = floor($startPage / ($listScale * $pageScale));
-	$query		= "select * from $table where process_state=$state";
-	if ($state==ST_REGISTERING) {
-		$query .= " and reg_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";//1달치만 보이게
-	}
-
 	$search_item = isset($_GET["search_item"]) ? $_GET["search_item"] : "";
 	$search_order = isset($_GET["search_order"]) ? $_GET["search_order"] : "";
-	
+
 	if ($search_item=="") {
 		$search_item	= isset($_POST["search_item"]) ? $_POST["search_item"] : "";
 	}
@@ -39,35 +39,32 @@ include("../header.php");
 		$search_order	= isset($_POST["search_order"]) ? $_POST["search_order"] : "";
 	}
 
-	if($search_order){
-		if($search_item){
-			$query.=" and $search_item like '%$search_order%'";
-		}else{
-			$query.=" and (reg_num like '%$search_order%' or customer_name like '%$search_order%' or customer_phone like '%$search_order%' or customer_desc like '%$search_order%' or product_name like '%$search_order%')";
-		}
-	}
-	$rs			= mysqli_query($db->db_conn, $query);
-	$totalList	= mysqli_num_rows($rs);
-
-	$query = "select * from $table where process_state=$state";
+	// 검색 조건 공통 빌드
+	$where = "where process_state=$state";
 	if ($state==ST_REGISTERING) {
-		$query .= " and reg_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";//1달치만 보이게
+		$where .= " and reg_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
 	}
-		if($search_order){
-			if($search_item){
-				$query.=" and $search_item like '%$search_order%'";
-			}else{
-				$query.=" and (reg_num like '%$search_order%' or customer_name like '%$search_order%' or customer_phone like '%$search_order%' or customer_desc like '%$search_order%' or product_name like '%$search_order%')";
-			}
+	if ($search_order) {
+		if ($search_item) {
+			$sq = mysqli_real_escape_string($db->db_conn, $search_order);
+			$where .= " and $search_item like '%$sq%'";
+		} else {
+			$sq = mysqli_real_escape_string($db->db_conn, $search_order);
+			$where .= " and (reg_num like '%$sq%' or customer_name like '%$sq%' or customer_phone like '%$sq%' or customer_desc like '%$sq%' or product_name like '%$sq%')";
 		}
-//	$query.="  order by idx desc LIMIT $startPage, $listScale";
-	if ($state==ST_FIX_DONE) {
-		$query.="  order by update_time asc LIMIT $startPage, $listScale";
 	}
-	else {
-		$query.="  order by idx desc LIMIT $startPage, $listScale";
-	} 
-	$result = mysqli_query($db->db_conn, $query);
+
+	// COUNT(*) 로 건수만 조회 (전체 행 전송 없이)
+	$rs        = mysqli_query($db->db_conn, "select count(*) from $table $where");
+	$totalList = (int)mysqli_fetch_row($rs)[0];
+
+	// 실제 데이터는 LIMIT 적용
+	if ($state==ST_FIX_DONE) {
+		$order = "order by update_time asc";
+	} else {
+		$order = "order by idx desc";
+	}
+	$result = mysqli_query($db->db_conn, "select * from $table $where $order LIMIT $startPage, $listScale");
 
 	if( $startPage ) { $listNo = $totalList - $startPage; } else { $listNo = $totalList; }
 /*
@@ -86,9 +83,55 @@ echo "startPage=".$startPage."<br>";
 	if ($state==ST_REGISTERING)	  { $move_item_sel = ST_DC; }
 	else if ($state==ST_DC) { $move_item_sel = ST_REG_DONE; }
 	else if ($state==ST_REG_DONE) { $move_item_sel = ST_FIX_DONE; }
+	else if ($state==ST_ARRIVED)  { $move_item_sel = ST_FIXING; }
 	else if ($state==ST_FIX_DONE) { $move_item_sel = ST_AS_COMPLETED; }
 
 ?>
+
+	<style>
+	@media (max-width: 767px) {
+		/* 일괄작업 헤더행 숨김 */
+		.as-bulk-row { display: none !important; }
+
+		/* 모바일에서 숨길 열 */
+		.col-m-hide { display: none !important; }
+
+		/* 검색폼 세로 배치 */
+		.as-search-td .form-group,
+		.as-search-td input[type="text"] {
+			display: block;
+			width: 100% !important;
+			margin-bottom: 6px;
+		}
+		.as-search-td select.form-control {
+			width: 100% !important;
+			margin-bottom: 6px;
+		}
+		.as-search-btns .btn {
+			margin-bottom: 4px;
+		}
+
+		/* 엑셀 업로드 영역 파일+버튼 세로 */
+		#userfile {
+			display: block;
+			margin-bottom: 6px;
+		}
+
+		/* 수정/보기 버튼 터치 크기 확보 */
+		.as-list-table .btn-sm {
+			padding: 8px 12px;
+			font-size: 14px;
+		}
+
+		/* 불량내용 모바일에서 줄 수 제한 */
+		.as-list-table td.col-desc {
+			max-width: 120px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+	</style>
 
 	<h4 class="page-header">신청서 보기 <?echo ' ('.$proc_state[$state].')'?></h4>
 
@@ -101,7 +144,7 @@ echo "startPage=".$startPage."<br>";
 	<tbody>
 	<tr>
 		<th>검색어</th>
-		<td>
+		<td class="as-search-td">
 			<div class="form-group">
 				<div class="input-group-btn">
 					<select name="search_item" class="form-control input-sm" onchange="changeSearchOption()">
@@ -119,7 +162,7 @@ echo "startPage=".$startPage."<br>";
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2" class="text-center">
+		<td colspan="2" class="text-center as-search-btns">
 			<button type="submit" class="btn btn-primary btn-sm">검색</button>&nbsp;
 			<a href="<?=$_SERVER['PHP_SELF'].'?state='.$state?>" class="btn btn-default btn-sm">초기화</a>
 			<? if ($state==ST_REGISTERING || $state==ST_FIX_DONE || $state==ST_DC) { ?>
@@ -156,7 +199,7 @@ echo "startPage=".$startPage."<br>";
 <? }?>
 
 	<div class="table-responsive">
-	<table class="table table-bordered table-hover">
+	<table class="table table-bordered table-hover as-list-table">
 	<colgroup>
 	<col width="3%">
 	<col width="5%">
@@ -177,14 +220,15 @@ echo "startPage=".$startPage."<br>";
 	<col width="5%">
 	</colgroup>
 	<thead>
-	<tr>
+	<tr class="as-bulk-row">
 	<th colspan="3" class="form-inline">
-		<a href="javascript:;" class="btn btn-default btn-xs ajax-checkbox" data-dbname="<?=$table?>" data-name="move" data-val="<?=$move_item_sel?>" <?if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS) { echo 'disabled';}?> >
-		<?	if ($state==ST_REGISTERING)   { echo "수거 택배비 입금으로 이동하기"; } 
-			else if ($state==ST_DC) { echo "접수완료로 이동하기"; }
-			else if ($state==ST_REG_DONE) { echo "수리완료로 이동하기"; } 
-			else if ($state==ST_FIX_DONE) { echo "발송완료로 이동하기"; } 
-			else						  { echo "이동하기"; } 
+		<a href="javascript:;" class="btn btn-default btn-xs ajax-checkbox" data-dbname="<?=$table?>" data-name="move" data-val="<?=$move_item_sel?>" <?if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS || $state==ST_DISPOSAL_REQUESTED || $state==ST_RETURN_REQUESTED) { echo 'disabled';}?> >
+		<?	if ($state==ST_REGISTERING)   { echo "수거 택배비 입금으로 이동하기"; }
+			else if ($state==ST_DC)       { echo "접수완료로 이동하기"; }
+			else if ($state==ST_REG_DONE) { echo "수리완료로 이동하기"; }
+			else if ($state==ST_ARRIVED)  { echo "수리중으로 이동하기"; }
+			else if ($state==ST_FIX_DONE) { echo "발송완료로 이동하기"; }
+			else						  { echo "이동하기"; }
 		?>
 		</a>
 	</th>
@@ -196,9 +240,9 @@ echo "startPage=".$startPage."<br>";
 	<th colspan="2"><a href="javascript:;" class="btn btn-default btn-xs ajax-checkbox" data-dbname="<?=$table?>" data-name="delete" data-val="" <?if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS) { echo 'disabled';}?> >삭제하기</a></th>
 	</tr>
 	<tr>
-		<th><input type="checkbox" id="allCheck"></th>
-		<th>N O</th>
-		<th>접수번호</th>
+		<th class="col-m-hide"><input type="checkbox" id="allCheck"></th>
+		<th class="col-m-hide">N O</th>
+		<th class="col-m-hide">접수번호</th>
 		<th>이 름</th>
 		<th>휴대폰</th>
 		<th>모델명</th>
@@ -206,10 +250,10 @@ echo "startPage=".$startPage."<br>";
 		<?if ($state!=ST_REGISTERING) { ?>
 		<th><?if($state==ST_FIX_DONE){echo "조치사항";} else if ($state==ST_REGISTERING) {echo "불량유형";} else{echo "송장번호(회수용)";}?></th>
 		<? } ?>
-		<th>담당자명</th> <!--20220103-->
-		<th>등록일</th>
+		<th class="col-m-hide">담당자명</th> <!--20220103-->
+		<th class="col-m-hide">등록일</th>
 		<?if ($state==ST_FIXING) { ?>
-		<th>수리여부</th><!--수리여부-->
+		<th class="col-m-hide">수리여부</th><!--수리여부-->
 		<? } ?>
 		<th colspan="2">상세관리</th>
 	</tr>
@@ -218,9 +262,9 @@ echo "startPage=".$startPage."<br>";
 	<?
 		$today = date("Y-m-d");
 		while($row = mysqli_fetch_array($result)){
-			$reg_date	= $tools->strDateCut($row[reg_date], 3);
+			$reg_date	= $tools->strDateCut($row['reg_date'], 3);
 
-			$customer_desc = $tools->strCut_utf($tools->strHtml($row[customer_desc]), 100);
+			$customer_desc = $tools->strCut_utf($tools->strHtml($row['customer_desc']), 100);
 
 			//20210213-2회이상 중복접수검색
 			//20210220-01000000000 제외
@@ -230,15 +274,13 @@ echo "startPage=".$startPage."<br>";
 //			echo $cnt2[0];
 	?>
 	<tr>
-		<td class="text-center"><input type="checkbox" name="check_list" value="<? echo $row[idx] ?>"></td>
-		<td class="text-center"><? echo $listNo ?></td>
-		<td class="text-center"><? echo $row[reg_num] ?></td>
-		<td class="text-center"><? echo $row[customer_name] ?><!--a href="./online_as_view.php?idx=<? echo $row[idx] ?>&from=<? echo $menu ?>#as_history"><span class="badge"><?if($cnt2[0]>0){echo $cnt2[0]+1;}?></span></a--><? if($today==$reg_date){ ?>&nbsp;<span class="label label-danger">New</span><? } ?></td><!--20210213--><!--20210220-->
-		<!--td class="text-center"><span <?if($cnt2[0]==1){echo 'style="background-color:yellow"';} else if($cnt2[0]>1){echo 'style="background-color:#FF00FF"';}?> ><? echo $row[customer_name] ?></span><? if($today==$reg_date){ ?>&nbsp;<span class="label label-danger">New</span><? } ?></td-->
-		<!--td class="text-center"><? echo $row[customer_name] ?><? if($today==$reg_date){ ?>&nbsp;<span class="label label-danger">New</span><? } ?></td--><!--20210213-->
+		<td class="text-center col-m-hide"><input type="checkbox" name="check_list" value="<? echo $row[idx] ?>"></td>
+		<td class="text-center col-m-hide"><? echo $listNo ?></td>
+		<td class="text-center col-m-hide"><? echo $row[reg_num] ?></td>
+		<td class="text-center"><? echo $row[customer_name] ?><? if($today==$reg_date){ ?>&nbsp;<span class="label label-danger">New</span><? } ?></td>
 		<td class="text-center"><a href='tel:<?echo $row[customer_phone];?>'><? echo $row[customer_phone] ?></a></td>
 		<td class="text-center"><? echo $row[product_name] ?> </td>
-		<td><? echo $customer_desc ?> </td>
+		<td class="col-desc"><? echo $customer_desc ?> </td>
 		<?if ($state!=ST_REGISTERING) { ?>
 		<td class="text-center">
 			<? 
@@ -254,14 +296,22 @@ echo "startPage=".$startPage."<br>";
 				echo $memo;
 			} 
 			else if ($state==ST_REGISTERING) {echo $row[broken_type];} 
-			else{?> <a href="<? if(strlen($row[parcel_num])==12) {echo constant('TRACKING_CJ').$row[parcel_num];} else {echo constant('TRACKING_EPOST').$row[parcel_num];} ?>" target="_blank"><?echo $row[parcel_num]; } 
+			else{?>
+				<a href="#" onclick="window.open('<? if(strlen($row[parcel_num])==12) {echo constant('TRACKING_CJ').$row[parcel_num];} else {echo constant('TRACKING_EPOST').$row[parcel_num];} ?>','tracking','width=1000,height=700,scrollbars=yes,resizable=yes');return false;"><?echo $row[parcel_num]; ?></a>
+				<?php
+				$ts = (int)$row['return_track_status'];
+				if     ($ts === 2) { echo '<span class="label label-success" style="margin-left:4px;">배송완료</span>'; }
+				elseif ($ts === 1) { echo '<span class="label label-warning" style="margin-left:4px;">배송중</span>'; }
+				else               { echo '<span class="label label-default" style="margin-left:4px;">미집화</span>'; }
+				}
 			?>
+
 		</td>
 		<? } ?>
-		<td class="text-center"><? echo $row['pic_name']?></td> <!--20220103-->
-		<td class="text-center"><? echo $reg_date?></td>
+		<td class="text-center col-m-hide"><? echo $row['pic_name']?></td> <!--20220103-->
+		<td class="text-center col-m-hide"><? echo $reg_date?></td>
 		<?if ($state==ST_FIXING) { ?>
-		<td class="text-center"><? echo $row[attached_files] ?></td><!--수리여부-->
+		<td class="text-center col-m-hide"><? echo $row[attached_files] ?></td><!--수리여부-->
 		<? } ?>
 		<td class="text-center"><a href="./online_as_edit.php?idx=<? echo $row[idx] ?>&from=<? echo $menu ?>" class="btn btn-default btn-sm">수정</a></td>
 		<td class="text-center"><a href="./online_as_view.php?idx=<? echo $row[idx] ?>&from=<? echo $menu ?>" class="btn btn-primary btn-sm">보기</a></td>
