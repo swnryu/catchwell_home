@@ -39,6 +39,8 @@
 	define("S_AS_TRACKING","sub_as_tracking");
 	define("S_AS_UNPROCESSED","sub_as_unprocessed");
 	define("S_AS_REPAIR_PAID","sub_as_repair_paid");//수리비입금
+	define("S_AS_DISPOSAL", "sub_as_disposal");//20260724 폐기요청
+	define("S_AS_RETURN", "sub_as_return");//20260724 반송요청
 
 	define("S_STATS_AS",       "sub_stats_as");
 	define("S_STATS_QUOTE",    "sub_stats_quote");
@@ -116,7 +118,7 @@
 	define("IMG_BANNER2", "banner2");
 
 	//process state = 0-접수중/1-접수완료/2-수리중/3-수리완료/4-출고/99-취소
-	$proc_state		= array(0=>"접수중", 1=>"접수완료", 2=>"수리중", 3=>"수리완료", 4=>"출고", 5=>"취소", 6=>"택배비입금", 7=>"입고완료", 8=>"미처리", 9=>"수리비입금");
+	$proc_state		= array(0=>"접수중", 1=>"접수완료", 2=>"수리중", 3=>"수리완료", 4=>"출고", 5=>"취소", 6=>"택배비입금", 7=>"입고완료", 8=>"미처리", 9=>"수리비입금", 10=>"폐기요청", 11=>"반송요청");
 	define("ST_REGISTERING", 0);	//접수중
 	define("ST_REG_DONE", 1);		//접수완료
 	define("ST_FIXING", 2); 		//(수리중)
@@ -129,6 +131,10 @@
 	define("ST_UNPROCESSED", 8);	//미처리(접수중 1달 초과 자동전환)
 
 	define("ST_REPAIR_PAID", 9);	//수리비 입금완료
+
+	define("ST_DISPOSAL_REQUESTED", 10);	//폐기요청 //20260724
+	define("ST_RETURN_REQUESTED", 11);		//반송요청 //20260724
+
 	define("ST_CANCELED", 99);		//취소
 
 

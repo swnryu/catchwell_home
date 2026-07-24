@@ -124,6 +124,8 @@ session_cache_limiter('private_no_expire');
 					<li><a href="<?=$site_url?>/online_as/online_as_shipment.php">AS 출고완료</a></li><!--20230707 출고완료 추가 -->
 					<li><a href="<?=$site_url?>/online_as/online_as_report.php">AS 전체 검색</a></li><!--20230707 전체검색 -->
 					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_UNPROCESSED;?>">미집화 보기</a></li>
+					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_DISPOSAL_REQUESTED;?>">폐기요청 보기</a></li><!--20260724-->
+					<li><a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_RETURN_REQUESTED;?>">반송요청 보기</a></li><!--20260724-->
 
 					<? if (($PERMISSION & PERMISSION_ALL) == PERMISSION_ALL) { ?>
 					<!--li><a href="<?=$site_url?>/online_as/online_as_analysis.php">AS 통계 분석</a></li--> <!--20210128-->
@@ -294,6 +296,8 @@ session_cache_limiter('private_no_expire');
 					<a href="<?=$site_url?>/online_as/online_as_shipment.php" class="list-group-item <?if($menu==S_AS_SHIPMENT){?>active<?}?>">AS 출고완료</a><!--20230707-->
 					<a href="<?=$site_url?>/online_as/online_as_report.php" class="list-group-item <?if($menu==S_AS_REPORT){?>active<?}?>">AS 전체 검색</a><!--20230707-->
 					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_UNPROCESSED;?>" class="list-group-item <?if($menu==S_AS_UNPROCESSED){?>active<?}?>">미집화 보기</a>
+					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_DISPOSAL_REQUESTED;?>" class="list-group-item <?if($menu==S_AS_DISPOSAL){?>active<?}?>">폐기요청 보기</a><!--20260724-->
+					<a href="<?=$site_url?>/online_as/online_as.php?state=<?echo ST_RETURN_REQUESTED;?>" class="list-group-item <?if($menu==S_AS_RETURN){?>active<?}?>">반송요청 보기</a><!--20260724-->
 					<a href="<?=$site_url?>/online_as/template/user_manual_as.pdf" class="list-group-item " target="_blank">사용자 매뉴얼</a><!-- 20210803 -->
 				<?}?>
 
