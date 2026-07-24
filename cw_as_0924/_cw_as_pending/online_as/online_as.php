@@ -173,7 +173,7 @@ echo "startPage=".$startPage."<br>";
 	<thead>
 	<tr>
 	<th colspan="3" class="form-inline">
-		<a href="javascript:;" class="btn btn-default btn-xs ajax-checkbox" data-dbname="<?=$table?>" data-name="move" data-val="<?=$move_item_sel?>" <?if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS) { echo 'disabled';}?> >
+		<a href="javascript:;" class="btn btn-default btn-xs ajax-checkbox" data-dbname="<?=$table?>" data-name="move" data-val="<?=$move_item_sel?>" <?if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS || $state==ST_DISPOSAL_REQUESTED || $state==ST_RETURN_REQUESTED) { echo 'disabled';}?> >
 		<?	if ($state==ST_REGISTERING)   { echo "접수완료로 이동하기"; } 
 			else if ($state==ST_REG_DONE) { echo "수리완료로 이동하기"; } 
 			else if ($state==ST_FIX_DONE) { echo "발송완료로 이동하기"; } 
