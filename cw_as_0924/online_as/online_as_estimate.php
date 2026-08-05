@@ -1,194 +1,546 @@
 <?php
-/** Error reporting */
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
-ini_set('display_startup_errors', TRUE);
 
 include("../common.php");
 
-function showStatus( $state )
-{
-    switch( $state )
-    {
-        case 0 :
-            echo "접수중";
-            break;
-        case 1 :
-            echo "접수완료";
-            break;
-        case 2 :
-            echo "수리중";
-            break;
-        case 3 :
-            echo "수리완료";
-            break;
-        case 4 :
-            echo "출고완료";
-            break;
+$searchData       = isset($_GET['searchData'])       ? $_GET['searchData']       : '';
+$searchValuePhone = isset($_GET['searchValuePhone']) ? $_GET['searchValuePhone'] : '';
+
+$search_sql = "SELECT * FROM as_parcel_service
+               WHERE reg_num='$searchData' AND customer_phone='$searchValuePhone'
+               ORDER BY reg_date DESC";
+$result     = $db->result($search_sql);
+$result_cnt = $result ? mysqli_num_rows($result) : 0;
+
+// 이미 발급된 수리비 가상계좌 확인 (P_OID = reg_num + "_R")
+$repair_oid = $searchData . "_R";
+$vbank      = $db->object("TB_INICIS_RETURN", "where P_OID='$repair_oid'");
+
+$row_as = null;
+if ($result_cnt > 0) {
+    mysqli_data_seek($result, 0);
+    $row_as = mysqli_fetch_array($result);
+    // 메모 태그 제거
+    $memo = $row_as['admin_memo'];
+    foreach (array('(V)','(R)','(H)','(S)','(M)','[ETC]') as $tag) {
+        $memo = str_replace($tag, '', $memo);
     }
-}
+    $memo = trim($memo);
 
-$strSearchCondition = 'reg_num';
-$strSearchCondition2 = 'customer_phone';
-$searchData = $_GET['searchData'];
-$searchData2 = $_GET['searchValuePhone'];
-$search_sql = "SELECT * FROM as_parcel_service WHERE $strSearchCondition='$searchData' AND $strSearchCondition2='$searchData2' ORDER BY reg_date DESC";
-
-$result = $db->result($search_sql);
-$result_cnt = mysqli_num_rows($result);
-
-// 업데이트 버튼이 클릭되었을 때의 처리
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $update_reg_num = $_POST['reg_num'];
-    $update_sql = "UPDATE as_parcel_service SET attached_files = 'YES' WHERE reg_num = '$update_reg_num'";
-    if ($db->result($update_sql)) {
-        echo "<script>window.open('online_as_estimate_complete.php', '_blank', 'width=500,height=300');</script>";
-        exit;
+    $pic_name = isset($row_as['pic_name']) ? $row_as['pic_name'] : '';
+    if ($pic_name === '이승환') {
+        $engineer_phone = '010-4071-8720';
+    } else if ($pic_name === '정승호') {
+        $engineer_phone = '070-7777-6752';
     } else {
-        echo "<script>alert('업데이트에 실패하였습니다. 다시 시도해주세요.');</script>";
+        $engineer_phone = '070-7777-6752';
+    }
+
+    // 수리사진 조회
+    $reg_num_s = mysqli_real_escape_string($db->db_conn, $row_as['reg_num']);
+    $photos_sql = "SELECT * FROM as_repair_photos WHERE reg_num='$reg_num_s' ORDER BY reg_date ASC";
+    $photos_result = @$db->result($photos_sql);
+    $repair_photos = array();
+    if ($photos_result && mysqli_num_rows($photos_result) > 0) {
+        while ($pr = mysqli_fetch_object($photos_result)) {
+            $repair_photos[] = $pr;
+        }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>캐치웰 A/S 견적서</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header h2 {
-            margin: 0;
-            color: #007BFF;
-        }
-        .info {
-            margin-bottom: 20px;
-        }
-        .info p {
-            margin: 8px 0;
-            font-size: 16px;
-        }
-        .highlight {
-            font-weight: bold;
-            color: #007BFF;
-        }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .footer a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .footer a:hover {
-            background-color: #007BFF;
-        }
-		.footer button {
-            padding: 15px 30px; /* 버튼 크기 조절: padding을 늘려서 크기를 키움 */
-            font-size: 18px; /* 글자 크기 조절 */
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .footer button:hover {
-            background-color: #0056b3;
-		}
-        .account-link {
-            color: #007BFF;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>캐치웰 A/S 견적서</title>
+<style>
+/* ── 기본 리셋 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --blue:    #2563EB;
+    --blue-lt: #EFF6FF;
+    --green:   #16A34A;
+    --green-lt:#F0FDF4;
+    --gray-50: #F8FAFC;
+    --gray-100:#F1F5F9;
+    --gray-200:#E2E8F0;
+    --gray-400:#94A3B8;
+    --gray-600:#475569;
+    --gray-900:#0F172A;
+    --red-lt:  #FFF7ED;
+    --red:     #C2410C;
+    --radius:  16px;
+    --shadow:  0 2px 16px rgba(15,23,42,.08);
+}
+
+body {
+    background: var(--gray-50);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--gray-900);
+    min-height: 100vh;
+    padding-bottom: 40px;
+}
+
+/* ── 레이아웃 ── */
+.wrap { max-width: 480px; margin: 0 auto; padding: 0 16px; }
+
+/* ── 헤더 ── */
+.top-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 14px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.top-bar img { height: 28px; }
+
+/* ── 히어로 배지 ── */
+.hero {
+    padding: 24px 0 8px;
+    text-align: center;
+}
+.hero .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-lt);
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+}
+.hero h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--gray-900);
+    line-height: 1.3;
+}
+.hero p {
+    font-size: 13px;
+    color: var(--gray-400);
+    margin-top: 4px;
+}
+
+/* ── 카드 ── */
+.card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-top: 16px;
+}
+.card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 14px;
+}
+
+/* ── 견적 정보 행 ── */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--gray-100);
+    gap: 12px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label {
+    font-size: 13px;
+    color: var(--gray-400);
+    flex-shrink: 0;
+    min-width: 72px;
+    padding-top: 1px;
+}
+.info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-900);
+    text-align: right;
+    word-break: keep-all;
+    line-height: 1.5;
+}
+.info-value.memo {
+    text-align: left;
+    font-weight: 500;
+    color: var(--gray-600);
+    white-space: pre-wrap;
+}
+
+/* ── 수리비 강조 ── */
+.price-block {
+    background: var(--blue-lt);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+}
+.price-block .lbl { font-size: 14px; color: var(--blue); font-weight: 600; }
+.price-block .amt { font-size: 26px; font-weight: 900; color: var(--blue); }
+.price-block .unit { font-size: 16px; font-weight: 700; color: var(--blue); }
+
+/* ── 가상계좌 카드 ── */
+.vbank-card {
+    background: var(--green-lt);
+    border: 1.5px solid #BBF7D0;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 16px;
+}
+.vbank-card .vc-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 16px;
+}
+.vbank-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #D1FAE5;
+    font-size: 14px;
+}
+.vbank-row:last-child { border-bottom: none; padding-bottom: 0; }
+.vbank-row .lbl { color: var(--gray-600); }
+.vbank-row .val { font-weight: 700; color: var(--gray-900); }
+
+.account-box {
+    background: #fff;
+    border: 1px solid #6EE7B7;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background .15s;
+    -webkit-tap-highlight-color: transparent;
+}
+.account-box:active { background: #F0FDF4; }
+.account-num {
+    display: block;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--green);
+    letter-spacing: -.5px;
+    margin-bottom: 4px;
+}
+.copy-hint { font-size: 11px; color: var(--gray-400); }
+
+.vbank-amt {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--gray-600);
+}
+.vbank-amt strong { font-size: 20px; color: var(--green); }
+
+/* ── 발급 버튼 카드 ── */
+.issue-card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-top: 16px;
+}
+.issue-card .guide {
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+.btn-issue {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37,99,235,.35);
+    transition: background .15s, transform .1s;
+    -webkit-tap-highlight-color: transparent;
+}
+.btn-issue:active { background: #1D4ED8; transform: scale(.98); }
+
+/* ── 주의사항 ── */
+.notice {
+    background: var(--red-lt);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-top: 16px;
+}
+.notice .n-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 10px;
+}
+.notice ul {
+    padding-left: 16px;
+    font-size: 12px;
+    color: #9A3412;
+    line-height: 1.7;
+}
+
+/* ── 고객센터 ── */
+.cs-bar {
+    text-align: center;
+    margin-top: 20px;
+    padding: 14px;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+.cs-bar p { font-size: 12px; color: var(--gray-400); margin-bottom: 4px; }
+.cs-bar a {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--blue);
+    text-decoration: none;
+}
+
+/* ── 빈 상태 ── */
+.empty { text-align: center; padding: 60px 20px; color: var(--gray-400); font-size: 15px; }
+
+/* ── 토스트 ── */
+#toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: #1E293B; color: #fff; font-size: 13px; font-weight: 600;
+    padding: 11px 22px; border-radius: 999px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+    white-space: nowrap;
+    z-index: 999;
+}
+#toast.show { opacity: 1; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>캐치웰 A/S 견적</h2>
-        </div>
-        <?php
-        if ($result_cnt == 0) {
-        ?>
-            <div class="search-contents">
-                <p>조회 결과가 없습니다.</p>
-            </div>
-        <?php
-        } else {
-            for ($i = 0; $i < $result_cnt; $i++) {
-                mysqli_data_seek($result, $i);
-                $search_db_row = mysqli_fetch_array($result);
-				$memo = $search_db_row['admin_memo'];
-				$memo = str_replace("(V)","",$memo);
-				$memo = str_replace("(R)","",$memo);
-				$memo = str_replace("(H)","",$memo);
-				$memo = str_replace("(S)","",$memo);
-				$memo = str_replace("(M)","",$memo);
-				$memo = str_replace("[ETC]","",$memo);
-        ?>
-            <div class="info">
-                <p><span class="highlight">접수번호:</span> <?php echo $search_db_row['reg_num'] ?></p>
-                <p><span class="highlight">고객명:</span> <?php echo $search_db_row['customer_name'] ?></p>
-                <p><span class="highlight">진행상태:</span> <?php echo showStatus($search_db_row['process_state']) ?></p>
-                <p><span class="highlight">제품명:</span> <?php echo $search_db_row['product_name'] ?></p>
-                <p><span class="highlight">고장증상:</span> <?php echo $search_db_row['customer_desc'] ?></p>
-                <p><span class="highlight">점검결과:</span> <?php echo $memo ?></p>
-                <p><span class="highlight">수리비용:</span> <?php echo number_format($search_db_row['price']) ?>원</p>
-                <p><span class="highlight">담당자:</span> <?php echo $search_db_row['pic_name'] ?> <a href="tel:010-4071-8720">010-4071-8720</a></p>
-            </div>
 
-            <div class="footer">
-                <form method="POST" onsubmit="return confirm('수리 진행을 요청하시겠습니까?');">
-                    <p>수리에 동의할 경우 아래 계좌로 수리비용 입금후 수리진행 요청 버튼을 눌러주세요.</br> 상담이 필요할경우 담당자에게 연락부탁드립니다.</p>
-                    <input type="hidden" name="reg_num" value="<?php echo $search_db_row['reg_num'] ?>">
-                    <button type="submit">수리 진행 요청</button>
-                </form>
-                <p>수리비용 입금 계좌:</p>
-                <p><span class="highlight">은행:</span> 우리은행 (주)캐치웰</p>
-                <p>
-                    <span class="highlight">계좌번호:</span> 
-                    <span class="account-link" onclick="copyToClipboard('1005-103-879305')"><u>1005-103-879305</u></span>
-                </p>
-                <p><span class="highlight">금액:</span> <?php echo number_format($search_db_row['price']) ?>원</p>
-            </div>
-        <?php
-            }
-        }
-        ?>
+<div id="toast">계좌번호가 복사되었습니다 ✓</div>
+
+<!-- 사진 라이트박스 -->
+<div id="photo-overlay" onclick="this.style.display='none'"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; cursor:pointer;">
+    <img id="photo-overlay-img" src=""
+         style="max-width:94%; max-height:90%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); border-radius:8px;">
+    <span style="position:absolute; top:16px; right:20px; color:#fff; font-size:28px; line-height:1;">×</span>
+</div>
+
+<!-- 상단 로고 -->
+<header class="top-bar">
+    <img src="https://catchwell.com/web/upload/NNEditor/20240315/89675d536c942fee35df45d6d52e920f.png" alt="캐치웰">
+</header>
+
+<div class="wrap">
+
+<?php if ($result_cnt === 0 || $row_as === null): ?>
+    <div class="empty">조회된 접수 정보가 없습니다.</div>
+
+<?php else:
+    $repair_price = (int)$row_as['price'];
+?>
+
+    <!-- 히어로 -->
+    <div class="hero">
+        <div class="badge">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 011.414-1.414L8.414 12.172l6.879-6.879a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            A/S 견적서
+        </div>
+        <h1>수리 견적 안내</h1>
+        <p>아래 내용을 확인하신 후 수리비를 입금해 주세요.</p>
     </div>
-    <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert('계좌번호가 클립보드에 복사되었습니다: ' + text);
-            }, function(err) {
-                console.error('클립보드 복사에 실패했습니다.', err);
-            });
-        }
-    </script>
+
+    <!-- 견적 정보 카드 -->
+    <div class="card">
+        <div class="card-title">접수 정보</div>
+        <div class="info-row">
+            <span class="info-label">접수번호</span>
+            <span class="info-value"><?php echo htmlspecialchars($row_as['reg_num']); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">고객명</span>
+            <span class="info-value"><?php echo htmlspecialchars($row_as['customer_name']); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">제품명</span>
+            <span class="info-value"><?php echo htmlspecialchars($row_as['product_name']); ?></span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">고장증상</span>
+            <span class="info-value memo"><?php echo nl2br(htmlspecialchars($row_as['customer_desc'])); ?></span>
+        </div>
+        <?php if ($memo): ?>
+        <div class="info-row">
+            <span class="info-label">점검결과</span>
+            <span class="info-value memo"><?php echo nl2br(htmlspecialchars($memo)); ?></span>
+        </div>
+        <?php endif; ?>
+        <div class="info-row">
+            <span class="info-label">담당자</span>
+            <span class="info-value">
+                <a href="tel:<?php echo preg_replace('/[^0-9]/', '', $engineer_phone); ?>" style="color:var(--blue);font-weight:600;text-decoration:none;"><?php echo $engineer_phone; ?></a>
+            </span>
+        </div>
+    </div>
+
+    <?php if (count($repair_photos) > 0): ?>
+    <!-- 수리사진 갤러리 -->
+    <div class="card">
+        <div class="card-title">수리사진</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+            <?php foreach ($repair_photos as $rp): ?>
+            <div onclick="openPhoto('/cw_as/online_as/files/repair/<?php echo htmlspecialchars($rp->file_name); ?>')"
+                 style="cursor:pointer; border-radius:8px; overflow:hidden; aspect-ratio:1; background:#f1f5f9;">
+                <img src="/cw_as/online_as/files/repair/<?php echo htmlspecialchars($rp->file_name); ?>"
+                     style="width:100%; height:100%; object-fit:cover; display:block;">
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- 수리비 강조 -->
+    <div class="card" style="padding: 16px 20px;">
+        <div class="price-block">
+            <span class="lbl">수리비용</span>
+            <div>
+                <span class="amt"><?php echo number_format($repair_price); ?></span>
+                <span class="unit">원</span>
+            </div>
+        </div>
+    </div>
+
+<?php if ($vbank && $vbank->P_OID === $repair_oid): ?>
+    <!-- ── 이미 발급된 가상계좌 ── -->
+    <div class="vbank-card">
+        <div class="vc-title">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            가상계좌 발급 완료
+        </div>
+        <div class="vbank-row">
+            <span class="lbl">은행</span>
+            <span class="val"><?php echo htmlspecialchars($vbank->P_FN_NM); ?></span>
+        </div>
+        <div class="account-box" onclick="copyAcct('<?php echo htmlspecialchars($vbank->P_VACT_NUM); ?>')">
+            <span class="account-num"><?php echo htmlspecialchars($vbank->P_VACT_NUM); ?></span>
+            <span class="copy-hint">터치하면 계좌번호가 복사됩니다</span>
+        </div>
+        <div class="vbank-amt">
+            입금 금액&nbsp;&nbsp;<strong><?php echo number_format($vbank->P_AMT); ?>원</strong>
+        </div>
+    </div>
+
+    <div class="notice">
+        <div class="n-title">※ 입금 시 주의사항</div>
+        <ul>
+            <li>반드시 안내된 금액과 동일하게 입금해 주세요.</li>
+            <li>입금 확인 후 수리 작업이 자동으로 시작됩니다.</li>
+        </ul>
+    </div>
+
+<?php elseif ($repair_price > 0): ?>
+    <!-- ── 가상계좌 발급 폼 ── -->
+    <div class="issue-card">
+        <p class="guide">수리 진행을 원하시면 가상계좌를 발급받아 수리비를 입금해 주세요.<br>입금 확인 즉시 수리가 시작됩니다.</p>
+        <form name="mobileweb" method="post" accept-charset="euc-kr">
+            <input type="hidden" name="P_INI_PAYMENT" value="VBANK">
+            <input type="hidden" name="P_MID"         value="CAEcatca07">
+            <input type="hidden" name="P_GOODS"       value="수리비">
+            <input type="hidden" name="P_EMAIL"       value="">
+            <input type="hidden" name="P_NEXT_URL"    value="https://csadmin.catchwell.com/cw_as_0924/pg_m/INImobile_mo_repair_return.php">
+            <input type="hidden" name="P_NOTI_URL"    value="https://csadmin.catchwell.com/cw_as_0924/pg_m/mx_rnoti.php">
+            <input type="hidden" name="P_CHARSET"     value="utf8">
+            <input type="hidden" name="P_RESERVED"    value="vbank_receipt=N&centerCd=Y">
+            <input type="hidden" name="P_OID"         value="<?php echo htmlspecialchars($repair_oid); ?>">
+            <input type="hidden" name="P_AMT"         value="<?php echo $repair_price; ?>">
+            <input type="hidden" name="P_UNAME"       value="<?php echo htmlspecialchars($row_as['customer_name']); ?>">
+            <input type="hidden" name="P_MOBILE"      value="<?php echo htmlspecialchars($row_as['customer_phone']); ?>">
+            <button type="button" class="btn-issue" onclick="onPay()">
+                가상계좌 발급하기
+            </button>
+        </form>
+    </div>
+
+    <div class="notice">
+        <div class="n-title">※ 안내사항</div>
+        <ul>
+            <li>가상계좌는 발급 후 7일 이내에 입금해 주세요.</li>
+            <li>입금 확인 후 수리가 시작됩니다.</li>
+            <li>수리 거부 시 반송 처리됩니다.</li>
+        </ul>
+    </div>
+
+<?php else: ?>
+    <div class="card">
+        <p style="font-size:14px; color:var(--gray-600); text-align:center; padding: 10px 0;">
+            수리비가 아직 설정되지 않았습니다.<br>고객센터로 문의해 주세요.
+        </p>
+    </div>
+<?php endif; ?>
+
+    <!-- 담당 엔지니어 -->
+    <div class="cs-bar">
+        <p>문의사항은 담당 엔지니어에게 연락해 주세요</p>
+        <a href="tel:<?php echo preg_replace('/[^0-9]/', '', $engineer_phone); ?>"><?php echo $engineer_phone; ?></a>
+    </div>
+
+<?php endif; ?>
+</div><!-- /wrap -->
+
+<script>
+function onPay() {
+    var f = document.mobileweb;
+    f.action = "https://mobile.inicis.com/smart/payment/";
+    f.target = "_self";
+    f.submit();
+}
+
+function copyAcct(num) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(num).then(showToast);
+    } else {
+        var el = document.createElement('textarea');
+        el.value = num;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.focus(); el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast();
+    }
+}
+
+function openPhoto(src) {
+    document.getElementById('photo-overlay-img').src = src;
+    document.getElementById('photo-overlay').style.display = 'block';
+}
+
+function showToast() {
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+</script>
 </body>
 </html>

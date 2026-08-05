@@ -24,7 +24,7 @@ $product_name = isset($_POST['product_name']) ? $_POST['product_name'] : "";
 $parts_name = isset($_POST['parts_name_org']) ? $_POST['parts_name_org'] : "";		//20211213
 $parts_name_ex = isset($_POST['parts_name_ex']) ? $_POST['parts_name_ex'] : "";		//20211213
 
-$parts_count = isset($_POST['parts_count']) ? $_POST['parts_count'] : 0;
+$parts_count = isset($_POST['parts_count']) ? max(1, (int)$_POST['parts_count']) : 1;
 $parts_price = isset($_POST['parts_price']) ? $_POST['parts_price'] : 0;
 $status = isset($_POST['status']) ? $_POST['status'] : 0;
 
@@ -45,22 +45,26 @@ $mode = isset($_POST['mode']) ? $_POST['mode'] : "new";
 
 if($mode=="new")
 {
-	$data = sprintf("product_name='%s', parts_name='%s', parts_name_ex='%s', parts_count=%d, parts_price=%d, status=%d, 
-	reason='%s', pic_name='%s', pic_memo='%s', customer_name='%s', customer_phone='%s', 
-	customer_addr='%s', customer_addr_detail='%s', customer_zipcode='%s', delivery_memo='%s', delivery_num='%s' ", 
-	$product_name, $parts_name, $parts_name_ex, $parts_count, $parts_price, $status, 
-	$reason, $pic_name, $pic_memo, $customer_name, $customer_phone, 
+	$data = sprintf("product_name='%s', parts_name='%s', parts_name_ex='%s', parts_count=%d, parts_price=%d, status=%d,
+	reason='%s', pic_name='%s', pic_memo='%s', customer_name='%s', customer_phone='%s',
+	customer_addr='%s', customer_addr_detail='%s', customer_zipcode='%s', delivery_memo='%s', delivery_num='%s' ",
+	$product_name, $parts_name, $parts_name_ex, $parts_count, $parts_price, $status,
+	$reason, $pic_name, $pic_memo, $customer_name, $customer_phone,
 	$customer_addr, $customer_addr_detail, $customer_zipcode, $delivery_memo, $delivery_num );
 
-	if( $db->insert($db_name, $data) ) 
-	{
-		//관리자 로그
-		$db->insert("admin_log","userid='$_SESSION[ADMIN_USERID]', contents='cs_internal_orders_new', ip='$_SERVER[REMOTE_ADDR]', udate=now(), comment=''");
-
-		$tools->alertJavaGo("등록 되었습니다.", $return_url);
+	$insert_ok = true;
+	for ($i = 0; $i < $parts_count; $i++) {
+		if (!$db->insert($db_name, $data)) {
+			$insert_ok = false;
+			break;
+		}
 	}
-	else
-	{
+
+	if ($insert_ok) {
+		$db->insert("admin_log","userid='$_SESSION[ADMIN_USERID]', contents='cs_internal_orders_new', ip='$_SERVER[REMOTE_ADDR]', udate=now(), comment='count=$parts_count'");
+		$msg = ($parts_count > 1) ? "총 {$parts_count}건 등록 되었습니다." : "등록 되었습니다.";
+		$tools->alertJavaGo($msg, $return_url);
+	} else {
 		$tools->errMsg("데이터베이스 에러 발생(1)");
 		return;
 	}

@@ -36,7 +36,7 @@ define("URL-자사몰", "https://www.catchwell.com/");
 
 
 //tracking link
-define("TRACKING_CJ","http://nplus.doortodoor.co.kr/web/detail.jsp?slipno=");
+if (!defined("TRACKING_CJ")) define("TRACKING_CJ","http://nplus.doortodoor.co.kr/web/detail.jsp?slipno=");
 
 //status (0-처리중, 1-적합, 2-부적합, 99-발송완료)	
 define("STATUS_NULL", 0); 

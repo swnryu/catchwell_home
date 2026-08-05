@@ -36,7 +36,7 @@ include("../header.php");
 	if( !$startPage ) { $startPage = 0; }
 
 	$totalPage = floor($startPage / ($listScale * $pageScale));
-	$query	= "select * from $table where update_time between date('$date_from') and date('$date_to2') and (process_state > $state_fixdone) and process_state != 6  ";
+	$query	= "select * from $table where update_time between date('$date_from') and date('$date_to2') and process_state IN (4, 5)";
 	
 	if ($search_item == "") {
 		$search_item	= isset($_POST["search_item"]) ? $_POST["search_item"] : "";
@@ -65,7 +65,7 @@ include("../header.php");
 	$rs			= mysqli_query($db->db_conn, $query);
 	$totalList	= mysqli_num_rows($rs);
 
-	$query = "select * from $table where update_time between date('$date_from') and (date('$date_to2')) and (process_state > $state_fixdone) and process_state != 6 ";
+	$query = "select * from $table where update_time between date('$date_from') and (date('$date_to2')) and process_state IN (4, 5)";
 	if($search_order){
 		if($search_item){
 			$query.=" and $search_item like '%$search_order%'";

@@ -108,6 +108,70 @@ if($idx) {
 }
 ?>
 
+	<style>
+	@media (max-width: 767px) {
+		/* 제품 모델명 select 세로 배치 */
+		#product_category,
+		#product_name {
+			width: 100% !important;
+			display: block;
+			margin-bottom: 6px;
+		}
+
+		/* form-inline 내부를 세로로 */
+		.form-inline {
+			display: block !important;
+		}
+		.form-inline .form-control {
+			display: block;
+			width: 100% !important;
+			margin-bottom: 6px;
+		}
+		.form-inline .input-sm {
+			display: inline-block;
+			width: 30% !important;
+			margin-bottom: 0;
+		}
+		.form-inline .btn {
+			display: block;
+			width: 100%;
+			margin-left: 0 !important;
+			margin-top: 6px;
+		}
+
+		/* 수리비용 input */
+		input[name="price"] {
+			width: 100% !important;
+			margin-bottom: 6px;
+		}
+
+		/* 처리상태 라디오 줄바꿈 */
+		.radio-inline {
+			display: inline-block;
+			margin-bottom: 4px;
+		}
+
+		/* 관리자 조치사항 내부 테이블 */
+		#admin_fix_desc {
+			width: 100% !important;
+		}
+		#admin_fix_desc td:first-child {
+			width: auto !important;
+			min-width: 60px;
+		}
+
+		/* 수리사진 썸네일 */
+		#repair-photo-list > div {
+			width: 80px !important;
+			height: 80px !important;
+		}
+		#repair-photo-list > div img {
+			width: 80px !important;
+			height: 80px !important;
+		}
+	}
+	</style>
+
 	<h4 class="page-header">신청서 <?=$page_mode?> <?=$from?></h4>
 
 	<form method="post" action="online_as_edit_ok.php?from=<?=$menu?>" name="tx_editor_form" enctype="multipart/form-data" >
@@ -369,16 +433,55 @@ echo $product_name."<br>";
 			<? if ($menu==S_AS_REGDONE || $menu==S_AS_FIXING || $menu==S_AS_REGISTERING) { ?>
 			
 			<a href="javascript:;" class="btn btn-primary" style="margin-left:40px;" onclick="sendEstimate('<?echo $menu;?>')" <?if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS) { echo 'disabled';}?> >견적서발행</a>
+			<? if ($menu==S_AS_FIXING) { ?>
+			<a href="javascript:;" class="btn btn-default" style="margin-left:8px;" onclick="copyRepayLink('<?echo $site_url;?>', '<?echo $row->reg_num;?>', '<?echo $row->customer_phone;?>')" title="고객에게 전달할 수리비 입금 링크를 복사합니다">수리비 입금링크 복사</a>
+			<? } ?>
 			<? } ?>
 			</div>
 		</td>
 	</tr>
+<?php if ($mode == "edit" && $row->process_state >= ST_REG_DONE): ?>
+	<tr>
+		<th>수리사진</th>
+		<td>
+			<div id="repair-photo-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; min-height:10px;">
+				<?php
+				$create_sql = "CREATE TABLE IF NOT EXISTS as_repair_photos (
+					idx INT AUTO_INCREMENT PRIMARY KEY,
+					as_idx INT NOT NULL,
+					reg_num VARCHAR(20) NOT NULL,
+					file_name VARCHAR(200) NOT NULL,
+					reg_date DATETIME DEFAULT NOW()
+				)";
+				mysqli_query($db->db_conn, $create_sql);
+				$photos_sql = "SELECT * FROM as_repair_photos WHERE as_idx='" . (int)$row->idx . "' ORDER BY reg_date ASC";
+				$photos_result = $db->result($photos_sql);
+				if ($photos_result && mysqli_num_rows($photos_result) > 0) {
+					while ($photo = mysqli_fetch_object($photos_result)) {
+				?>
+				<div id="photo-item-<?php echo $photo->idx; ?>" style="position:relative; width:90px; height:90px; flex-shrink:0;">
+					<img src="/cw_as/online_as/files/repair/<?php echo htmlspecialchars($photo->file_name); ?>"
+					     style="width:90px; height:90px; object-fit:cover; border-radius:4px; border:1px solid #ccc; cursor:pointer;"
+					     onclick="previewRepairPhoto(this.src)">
+					<button type="button" onclick="deleteRepairPhoto(<?php echo $photo->idx; ?>)"
+					        style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:50%; width:20px; height:20px; font-size:13px; line-height:1; cursor:pointer; padding:0;">×</button>
+				</div>
+				<?php } } ?>
+			</div>
+			<label style="cursor:pointer; margin:0;">
+				<input type="file" id="repair-photo-input" accept="image/*" capture="environment" style="display:none;" onchange="uploadRepairPhoto(this)">
+				<span class="btn btn-default btn-sm">📷 사진 추가</span>
+			</label>
+			<span id="repair-photo-status" style="margin-left:10px; font-size:13px; color:#888;"></span>
+		</td>
+	</tr>
+<?php endif; ?>
 <? if ($menu==S_AS_REGDONE || $menu==S_AS_FIXDONE || $menu==S_AS_NEW) { ?> <!--20220103-->
 	<tr>
 		<th>담당자명*</th>
 		<td>
 			<?  if($menu==S_AS_REGDONE || $menu==S_AS_NEW) { //20220117
-					$arrPic = array("김영", "이승환", "정승호", "CS쉐어링_천세창", "CS쉐어링_김민서"); ?>
+					$arrPic = array("김영", "이승환", "정승호", "CS쉐어링_천세창", "CS쉐어링_기은영"); ?>
 				<div class="form-inline">
 					<input name="pic_name" id="pic_name" class="form-control" style="width:200px;" value="<?=$row->pic_name?>" placeholder="담당자명 입력" autocomplete="off" >
 					&nbsp;&nbsp;&nbsp;	
@@ -568,20 +671,97 @@ echo $product_name."<br>";
 		<tr>
 			<td class="text-center">
 			<a href="javascript:;" class="btn btn-primary" onClick="sendit();" <?//if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS) { echo 'disabled';}?> >등록</a>
-			<? //if ($mode==edit) { 
+			<? //if ($mode==edit) {
 				//if ($menu==S_AS_REPORT) {?>
 				<a href="online_as_report.php" class="btn btn-default" >목록</a>
-				<?// } else { ?>	
+				<?// } else { ?>
 				<a href="online_as.php?state=<?//echo $row->process_state;?>" class="btn btn-default" >목록</a>
-				<?// } ?>		
-				<a href="javascript:;" class="btn btn-danger" style="margin-left:40px;" onclick="deleteit('<?//echo $menu;?>')" <?//if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS) { echo 'disabled';}?> >삭제</a> 
+				<?// } ?>
+				<a href="javascript:;" class="btn btn-danger" style="margin-left:40px;" onclick="deleteit('<?//echo $menu;?>')" <?//if(($PERMISSION & PERMISSION_CS)!=PERMISSION_CS) { echo 'disabled';}?> >삭제</a>
 			<? //} ?>
 			</td>
 		</tr>
 	</!table-->
 
+<!-- 사진 미리보기 오버레이 -->
+<div id="photo-overlay" onclick="this.style.display='none'"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; text-align:center; cursor:pointer;">
+    <img id="photo-overlay-img" src="" style="max-width:90%; max-height:90%; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); border-radius:4px;">
+</div>
 
 <script type="text/javascript">
+/* ── 수리사진 업로드/삭제/미리보기 ── */
+function uploadRepairPhoto(input) {
+    if (!input.files || input.files.length === 0) return;
+    var file = input.files[0];
+    var status = document.getElementById('repair-photo-status');
+    status.textContent = '업로드 중...';
+
+    var fd = new FormData();
+    fd.append('photo',   file);
+    fd.append('as_idx',  '<?php echo (int)$row->idx; ?>');
+    fd.append('reg_num', '<?php echo addslashes($row->reg_num); ?>');
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'online_as_repair_photo_upload.php', true);
+    xhr.onload = function() {
+        input.value = '';
+        try {
+            var res = JSON.parse(xhr.responseText);
+            if (res.ok) {
+                status.textContent = '업로드 완료';
+                addPhotoThumb(res.idx, res.file_name);
+                setTimeout(function(){ status.textContent = ''; }, 2000);
+            } else {
+                status.textContent = '오류: ' + res.msg;
+            }
+        } catch(e) {
+            status.textContent = '서버 응답 오류';
+        }
+    };
+    xhr.onerror = function() { status.textContent = '네트워크 오류'; };
+    xhr.send(fd);
+}
+
+function addPhotoThumb(idx, file_name) {
+    var list = document.getElementById('repair-photo-list');
+    var div  = document.createElement('div');
+    div.id = 'photo-item-' + idx;
+    div.style.cssText = 'position:relative; width:100px; height:100px; flex-shrink:0;';
+    var img_url = '/cw_as/online_as/files/repair/' + file_name;
+    div.innerHTML =
+        '<img src="' + img_url + '" style="width:100px; height:100px; object-fit:cover; border-radius:4px; border:1px solid #ccc; cursor:pointer;" onclick="previewRepairPhoto(this.src)">' +
+        '<button type="button" onclick="deleteRepairPhoto(' + idx + ')" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.55); color:#fff; border:none; border-radius:50%; width:22px; height:22px; font-size:14px; line-height:1; cursor:pointer; padding:0;">×</button>';
+    list.appendChild(div);
+}
+
+function deleteRepairPhoto(photo_idx) {
+    if (!confirm('이 사진을 삭제할까요?')) return;
+    var fd = new FormData();
+    fd.append('photo_idx', photo_idx);
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'online_as_repair_photo_delete.php', true);
+    xhr.onload = function() {
+        try {
+            var res = JSON.parse(xhr.responseText);
+            if (res.ok) {
+                var el = document.getElementById('photo-item-' + photo_idx);
+                if (el) el.parentNode.removeChild(el);
+            } else {
+                alert('삭제 실패: ' + res.msg);
+            }
+        } catch(e) {
+            alert('서버 응답 오류');
+        }
+    };
+    xhr.send(fd);
+}
+
+function previewRepairPhoto(src) {
+    document.getElementById('photo-overlay-img').src = src;
+    document.getElementById('photo-overlay').style.display = 'block';
+}
+
 function sendit() {
 	var form=document.tx_editor_form;
 	
@@ -663,6 +843,17 @@ function deleteit(menu) {
 		form.action = "online_as_edit_ok.php?from="+menu;
 		form.submit();
 	}
+}
+
+function copyRepayLink(site_url, reg_num, phone) {
+	var link = site_url + "/online_as/online_as_repair_pay.php?searchData=" + reg_num + "&searchValuePhone=" + phone;
+	var el = document.createElement('textarea');
+	el.value = link;
+	document.body.appendChild(el);
+	el.select();
+	document.execCommand('copy');
+	document.body.removeChild(el);
+	alert("수리비 입금 링크가 복사되었습니다.\n고객에게 전달해 주세요.");
 }
 
 function sendEstimate(menu) {

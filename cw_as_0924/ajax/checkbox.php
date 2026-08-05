@@ -75,12 +75,17 @@ else if($name=="move" || $name=="shipment"){
 
 		if($dbname=="as_parcel_service"){
 			$row = $db->object($dbname, "where idx='$idx[$i]'");
-			//@unlink($ROOT_DIR."/online_as/files/".$row->attached_files);
 
 			$db->update($dbname,"process_state=$val, update_time=now() where idx='$idx[$i]'");
-		
+
+			// 히스토리 기록
+			$prev = (int)$row->process_state;
+			$new  = (int)$val;
+			$rnum = mysqli_real_escape_string($db->db_conn, $row->reg_num);
+			$db->insert("as_process_history", "as_idx={$idx[$i]}, reg_num='$rnum', prev_state=$prev, new_state=$new, changed_by='$ADMIN_NAME', changed_at=now()");
+
 			//관리자 로그
-//			$db->insert("admin_log","userid='$_SESSION[ADMIN_USERID]', contents='신청서삭제', ip='$_SERVER[REMOTE_ADDR]', udate=now(), comment='$reg_num'");
+			$db->insert("admin_log","userid='$_SESSION[ADMIN_USERID]', contents='move_state', ip='$_SERVER[REMOTE_ADDR]', udate=now(), comment='$rnum $prev->$new'");
 		}
 		else if($dbname=="shipping_date_new"){
 			$row = $db->object($dbname, "where idx='$idx[$i]'");

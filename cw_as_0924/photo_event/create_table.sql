@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS `cs_photo_event_orders` (
+  `idx`            INT           NOT NULL AUTO_INCREMENT,
+  `reg_datetime`   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `product_gift`   VARCHAR(200)  NOT NULL DEFAULT '',
+  `quantity`       INT           NOT NULL DEFAULT 1,
+  `customer_name`  VARCHAR(100)  NOT NULL DEFAULT '',
+  `customer_phone` VARCHAR(30)   NOT NULL DEFAULT '',
+  `customer_addr`  VARCHAR(500)  NOT NULL DEFAULT '',
+  `delivery_memo`  VARCHAR(300)  NOT NULL DEFAULT '',
+  `shop_name`      VARCHAR(100)  NOT NULL DEFAULT '',
+  `order_num`      VARCHAR(200)  NOT NULL DEFAULT '',
+  `customer_id`    VARCHAR(200)  NOT NULL DEFAULT '',
+  `purchase_date`  DATE          DEFAULT NULL,
+  `product_name`   VARCHAR(200)  NOT NULL DEFAULT '',
+  `memo`           TEXT,
+  `delivery_num`   VARCHAR(50)   NOT NULL DEFAULT '',
+  `status`         TINYINT       NOT NULL DEFAULT 0,
+  `pic_name`       VARCHAR(100)  NOT NULL DEFAULT '',
+  `pic_memo`       TEXT,
+  PRIMARY KEY (`idx`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

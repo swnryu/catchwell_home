@@ -1,6 +1,6 @@
 <?
 $SALES_DB_NAME="cw_sales";
-$db_sales = new mysqli_dbConnect($DB_HOST, $SALES_DB_NAME, $DB_USER, $DB_PWD);
+$db_sales = new mysqli_dbConnect($DB_HOST, $SALES_DB_NAME, $DB_USER, $DB_PWD, $DB_PORT);
 $table_sales = "B2B_LIST_ORDER";
 
 $tracking_sales = "";

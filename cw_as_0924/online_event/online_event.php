@@ -300,12 +300,12 @@ function newWin(url) {
 		<td class="text-center"><? echo $row['id']; if ($row['shoppingmall']=='오늘의집' && $row['nickname']!=''){echo "<br>(".$row['nickname'].")";} ?> </td>
 		<td class="text-center"><? echo $row['oid']; ?></td>
 		<!--td class="text-center"><a href="JavaScript:newWin('data/<?=$row['bbs_file']?>');"><img src="data/<?=$row['bbs_file']?>" width="80px" ></a></td--> 
-		<td class="text-center"><a href="JavaScript:newWin('data/<?=$row['bbs_file']?>');" data-toggle="tooltip" data-placement="right" data-html="true" title="<img src='data/<?=$row['bbs_file']?>' width='180px' />" >
+		<td class="text-center"><a href="JavaScript:newWin('/cw_as/online_event/data/<?=$row['bbs_file']?>');" data-toggle="tooltip" data-placement="right" data-html="true" title="<img src='/cw_as/online_event/data/<?=$row['bbs_file']?>' width='180px' />" >
 			<!--img src="data/<?=$row['bbs_file']?>" width="80px" height="80px" /-->
 			<? if( strstr($row['bbs_file'], '.mp4') ) { ?> 
-				<video src="data/<?=$row['bbs_file']?>" width="80px" height="80px"> </video> 
+				<video src="/cw_as/online_event/data/<?=$row['bbs_file']?>" width="80px" height="80px"> </video> 
 			<? } else { ?> 
-				<img src="data/<?=$row['bbs_file']?>" width="80px" height="80px"> 
+				<img src="/cw_as/online_event/data/<?=$row['bbs_file']?>" width="80px" height="80px"> 
 			<? } ?>	
 		</a></td> 
 		<td class="text-center"><? echo $reg_date?></td>

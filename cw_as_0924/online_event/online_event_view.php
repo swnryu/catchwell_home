@@ -95,7 +95,7 @@ $row = $db->object("cs_online_event","where idx='$idx'");
 	<tr> 
 		<th>첨부파일</th>
 		<td>
-		<span id="DivContents"><img src="data/<?=$row->bbs_file?>"></span><br>
+		<span id="DivContents"><img src="211.54.90.200/cw_as/online_event/data/<?=$row->bbs_file?>"></span><br>
 		<?if($row->bbs_file){ echo '<a href="./download_event.php?idx='.$row->idx.'&download=1">'.$row->bbs_file.'</a>';}?>
 		</td>
 	</tr>

@@ -84,4 +84,27 @@
 */
 	}
 
+function sendFlowMessage($chatId, $contents) {
+    if (empty($chatId) || empty($contents)) return;
+
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL            => 'https://api.flow.team/v1/chats/' . (int)$chatId . '/messages',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING       => '',
+        CURLOPT_MAXREDIRS      => 10,
+        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST  => 'POST',
+        CURLOPT_POSTFIELDS     => 'registerId=' . urlencode(FLOW_SENDER_ID) . '&contents=' . urlencode($contents),
+        CURLOPT_HTTPHEADER     => array(
+            'Content-Type: application/x-www-form-urlencoded',
+            'x-flow-api-key: ' . FLOW_API_KEY,
+        ),
+    ));
+    curl_exec($curl);
+    curl_close($curl);
+}
+
 ?>

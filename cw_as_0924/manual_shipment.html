@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>출고 관리 시스템 사용 안내</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; font-size: 14px; color: #333; background: #f5f6fa; }
+
+/* 상단 헤더 */
+.top-header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2e6da4 100%);
+    color: #fff; padding: 36px 0; text-align: center;
+}
+.top-header h1 { font-size: 26px; font-weight: bold; margin-bottom: 8px; }
+.top-header p  { font-size: 14px; color: #c8dff5; }
+
+/* 목차 */
+.toc {
+    background: #fff; border-bottom: 1px solid #dde3ec;
+    display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+}
+.toc a {
+    display: block; padding: 14px 28px; color: #2e6da4; text-decoration: none;
+    font-size: 13px; font-weight: bold; border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+.toc a:hover { border-bottom-color: #2e6da4; background: #f0f5fb; }
+
+/* 본문 */
+.container { max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
+
+/* 섹션 구분 */
+.section { margin-bottom: 48px; }
+.section-badge {
+    display: inline-block; padding: 3px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: bold; color: #fff; margin-bottom: 10px;
+}
+.badge-sponsored { background: #e67e22; }
+.badge-photo     { background: #8e44ad; }
+.badge-common    { background: #27ae60; }
+
+.section h2 {
+    font-size: 20px; font-weight: bold; color: #1e3a5f;
+    border-left: 4px solid #2e6da4; padding-left: 12px;
+    margin-bottom: 20px;
+}
+.section h3 {
+    font-size: 15px; font-weight: bold; color: #2e6da4;
+    margin: 24px 0 10px;
+}
+
+/* 프로세스 흐름도 */
+.flow {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 0;
+    background: #fff; border: 1px solid #dde3ec; border-radius: 8px;
+    padding: 20px 16px; margin-bottom: 24px;
+}
+.flow-step {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; min-width: 100px; flex: 1;
+}
+.flow-icon {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 8px; color: #fff;
+}
+.flow-label { font-size: 12px; font-weight: bold; color: #333; line-height: 1.4; }
+.flow-sub   { font-size: 11px; color: #888; margin-top: 3px; }
+.flow-arrow { font-size: 20px; color: #bbb; padding: 0 4px; flex-shrink: 0; }
+
+.ic-upload   { background: #3498db; }
+.ic-approve  { background: #e67e22; }
+.ic-download { background: #27ae60; }
+.ic-cj       { background: #e74c3c; }
+.ic-done     { background: #2ecc71; }
+.ic-search   { background: #9b59b6; }
+
+/* 단계별 설명 */
+.step-list { display: flex; flex-direction: column; gap: 14px; }
+.step-item {
+    display: flex; gap: 14px; background: #fff;
+    border: 1px solid #dde3ec; border-radius: 8px; padding: 16px;
+}
+.step-num {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #2e6da4; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: bold; flex-shrink: 0; margin-top: 1px;
+}
+.step-num.orange { background: #e67e22; }
+.step-num.green  { background: #27ae60; }
+.step-num.purple { background: #8e44ad; }
+.step-body { flex: 1; }
+.step-body strong { display: block; font-size: 14px; color: #1e3a5f; margin-bottom: 5px; }
+.step-body p { color: #555; line-height: 1.6; }
+.step-body .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 11px; font-weight: bold; margin-right: 4px;
+}
+.tag-who-staff   { background: #ebf3fb; color: #2e6da4; }
+.tag-who-manager { background: #fef0e6; color: #e67e22; }
+.tag-btn { background: #eafaf1; color: #27ae60; }
+.tag-warn { background: #fdf2f2; color: #e74c3c; }
+
+/* 엑셀 컬럼 테이블 */
+.col-table {
+    width: 100%; border-collapse: collapse; background: #fff;
+    border: 1px solid #dde3ec; border-radius: 8px; overflow: hidden;
+    margin-top: 10px;
+}
+.col-table th {
+    background: #f0f4fa; color: #1e3a5f; font-size: 12px;
+    padding: 8px 12px; text-align: left; border-bottom: 1px solid #dde3ec;
+}
+.col-table td {
+    padding: 7px 12px; font-size: 13px; border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+}
+.col-table tr:last-child td { border-bottom: none; }
+.col-table .col-letter {
+    font-weight: bold; color: #2e6da4; width: 36px; text-align: center;
+}
+.col-table .required { color: #e74c3c; font-size: 11px; }
+
+/* 주의사항 */
+.notice-box {
+    background: #fffbeb; border: 1px solid #f39c12;
+    border-left: 4px solid #f39c12; border-radius: 6px;
+    padding: 14px 16px; margin-top: 12px;
+}
+.notice-box p { color: #7d6608; line-height: 1.8; font-size: 13px; }
+
+/* 차이점 비교 */
+.compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+}
+.compare-card {
+    background: #fff; border: 1px solid #dde3ec; border-radius: 8px;
+    padding: 18px;
+}
+.compare-card h4 {
+    font-size: 14px; font-weight: bold; margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 2px solid;
+}
+.compare-card.sponsored h4 { color: #e67e22; border-color: #e67e22; }
+.compare-card.photo     h4 { color: #8e44ad; border-color: #8e44ad; }
+.compare-card ul { padding-left: 18px; }
+.compare-card li { font-size: 13px; color: #555; margin-bottom: 6px; line-height: 1.5; }
+
+/* 구분선 */
+.divider {
+    border: none; border-top: 2px dashed #dde3ec; margin: 40px 0;
+}
+
+/* 하단 */
+.footer-note {
+    text-align: center; color: #aaa; font-size: 12px; margin-top: 60px;
+    padding-top: 20px; border-top: 1px solid #eee;
+}
+</style>
+</head>
+<body>
+
+<div class="top-header">
+    <h1>출고 관리 시스템 사용 안내</h1>
+    <p>협찬/샘플 출고관리 &nbsp;·&nbsp; 포토이벤트 출고관리</p>
+</div>
+
+<nav class="toc">
+    <a href="#overview">개요 및 차이점</a>
+    <a href="#sponsored">협찬/샘플 출고관리</a>
+    <a href="#photo">포토이벤트 출고관리</a>
+    <a href="#excel-format">엑셀 파일 형식</a>
+    <a href="#notice">주의사항</a>
+</nav>
+
+<div class="container">
+
+    <!-- ── 개요 ── -->
+    <div class="section" id="overview">
+        <div class="section-badge badge-common">개요</div>
+        <h2>시스템 개요 및 차이점</h2>
+
+        <div class="compare">
+            <div class="compare-card sponsored">
+                <h4>📦 협찬/샘플 출고관리</h4>
+                <ul>
+                    <li>담당자가 요청 리스트 업로드</li>
+                    <li><strong>팀장 승인 단계 있음</strong></li>
+                    <li>승인 후 출고요청서 다운로드</li>
+                    <li>CJ택배 엑셀로 출고완료 처리</li>
+                    <li>업로드 시 플로우(Flow) 메시지 자동 발송</li>
+                </ul>
+            </div>
+            <div class="compare-card photo">
+                <h4>📸 포토이벤트 출고관리</h4>
+                <ul>
+                    <li>담당자가 요청 리스트 업로드</li>
+                    <li><strong>승인 단계 없음</strong> (바로 출고 가능)</li>
+                    <li>출고리스트 다운로드</li>
+                    <li>CJ택배 엑셀로 출고완료 처리</li>
+                    <li>주문번호 중복 자동 차단</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="notice-box">
+            <p>
+                ⚠ 두 시스템 모두 <strong>사이드바 → 출고/반품/교환 관리</strong> 메뉴에 있습니다.<br>
+                ⚠ 엑셀 파일은 <strong>.xlsx / .xls</strong> 형식만 업로드 가능합니다. (5MB 이하)
+            </p>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ── 협찬/샘플 ── -->
+    <div class="section" id="sponsored">
+        <div class="section-badge badge-sponsored">협찬/샘플 출고관리</div>
+        <h2>협찬/샘플 출고관리</h2>
+
+        <h3>프로세스 흐름</h3>
+        <div class="flow">
+            <div class="flow-step">
+                <div class="flow-icon ic-upload">📤</div>
+                <div class="flow-label">요청 리스트<br>업로드</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-approve">✔</div>
+                <div class="flow-label">팀장 승인</div>
+                <div class="flow-sub">팀장</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-download">📥</div>
+                <div class="flow-label">출고요청서<br>다운로드</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-cj">🚚</div>
+                <div class="flow-label">CJ택배<br>접수</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-upload">📤</div>
+                <div class="flow-label">배송완료<br>엑셀 업로드</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-done">✅</div>
+                <div class="flow-label">출고완료</div>
+                <div class="flow-sub">자동 처리</div>
+            </div>
+        </div>
+
+        <h3>단계별 사용법</h3>
+        <div class="step-list">
+
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <strong>요청 리스트 엑셀 업로드 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        사이드바에서 <strong>협찬/샘플 출고 관리 → 요청 리스트</strong> 메뉴를 클릭합니다.<br>
+                        "요청 리스트 업로드" 영역에서 엑셀 파일을 선택하고 <span class="tag tag-btn">[xlsx 파일 업로드]</span> 버튼을 클릭합니다.<br>
+                        업로드 완료 시 <strong>플로우(Flow) 메시지</strong>가 팀장에게 자동으로 발송됩니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num orange">2</div>
+                <div class="step-body">
+                    <strong>팀장 승인 <span class="tag tag-who-manager">팀장</span></strong>
+                    <p>
+                        플로우 메시지 수신 후 시스템에 접속합니다.<br>
+                        <strong>요청 리스트</strong> 메뉴에서 승인할 항목의 체크박스를 선택합니다.<br>
+                        <span class="tag tag-btn">[✔ 승인하기]</span> 버튼 클릭 → 확인 → 항목이 <strong>승인 완료</strong> 탭으로 이동합니다.<br>
+                        ※ 승인하기 버튼은 <strong>팀장 계정에만 표시</strong>됩니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num green">3</div>
+                <div class="step-body">
+                    <strong>출고요청서 다운로드 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        <strong>승인 완료</strong> 메뉴로 이동합니다.<br>
+                        <span class="tag tag-btn">[출고요청서 엑셀 다운로드]</span> 버튼을 클릭하면 CJ택배 접수용 양식으로 다운로드됩니다.<br>
+                        이 파일을 CJ택배 사이트에 업로드하여 택배를 접수합니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-body">
+                    <strong>CJ택배 배송완료 엑셀 업로드 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        CJ택배에서 <strong>발송고객_일별_배달상세</strong> 엑셀을 다운로드합니다.<br>
+                        <strong>승인 완료</strong> 메뉴의 "택배 접수완료 처리" 영역에서 해당 파일을 선택하고<br>
+                        <span class="tag tag-btn">[엑셀 업로드 → 출고완료]</span> 버튼을 클릭합니다.<br>
+                        전화번호를 기준으로 자동 매칭되어 송장번호 등록 및 <strong>출고완료</strong> 처리됩니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num green">5</div>
+                <div class="step-body">
+                    <strong>출고완료 조회 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        <strong>출고 완료</strong> 메뉴에서 기간별로 처리된 내역을 조회하고 엑셀로 다운로드할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ── 포토이벤트 ── -->
+    <div class="section" id="photo">
+        <div class="section-badge badge-photo">포토이벤트 출고관리</div>
+        <h2>포토이벤트 출고관리</h2>
+
+        <h3>프로세스 흐름</h3>
+        <div class="flow">
+            <div class="flow-step">
+                <div class="flow-icon ic-upload">📤</div>
+                <div class="flow-label">요청 리스트<br>업로드</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-download">📥</div>
+                <div class="flow-label">출고리스트<br>다운로드</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-cj">🚚</div>
+                <div class="flow-label">CJ택배<br>접수</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-upload">📤</div>
+                <div class="flow-label">배송완료<br>엑셀 업로드</div>
+                <div class="flow-sub">담당자</div>
+            </div>
+            <div class="flow-arrow">▶</div>
+            <div class="flow-step">
+                <div class="flow-icon ic-done">✅</div>
+                <div class="flow-label">출고완료</div>
+                <div class="flow-sub">자동 처리</div>
+            </div>
+        </div>
+
+        <h3>단계별 사용법</h3>
+        <div class="step-list">
+
+            <div class="step-item">
+                <div class="step-num purple">1</div>
+                <div class="step-body">
+                    <strong>요청 리스트 엑셀 업로드 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        사이드바에서 <strong>포토이벤트 출고 관리 → 요청 리스트 등록</strong> 메뉴를 클릭합니다.<br>
+                        "요청 리스트 업로드" 영역에서 엑셀 파일을 선택하고 <span class="tag tag-btn">[xlsx 파일 업로드]</span> 버튼을 클릭합니다.<br>
+                        <strong>주문번호가 동일한 건</strong>은 중복으로 판단하여 자동으로 건너뜁니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num purple">2</div>
+                <div class="step-body">
+                    <strong>출고리스트 다운로드 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        <span class="tag tag-btn">[출고리스트 엑셀 다운로드]</span> 버튼을 클릭하면 현재 처리 중인 전체 건을 CJ택배 접수용 양식으로 다운로드합니다.<br>
+                        이 파일을 CJ택배 사이트에 업로드하여 택배를 접수합니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num purple">3</div>
+                <div class="step-body">
+                    <strong>CJ택배 배송완료 엑셀 업로드 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        CJ택배에서 <strong>발송고객_일별_배달상세</strong> 엑셀을 다운로드합니다.<br>
+                        "택배 접수완료 처리" 영역에서 해당 파일을 선택하고 <span class="tag tag-btn">[엑셀 업로드 → 출고완료]</span> 버튼을 클릭합니다.<br>
+                        전화번호를 기준으로 자동 매칭되어 송장번호 등록 및 <strong>출고완료</strong> 처리됩니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num purple">4</div>
+                <div class="step-body">
+                    <strong>출고완료 조회 <span class="tag tag-who-staff">담당자</span></strong>
+                    <p>
+                        <strong>포토이벤트 출고 완료</strong> 메뉴에서 기간별로 처리된 내역을 조회하고 엑셀로 다운로드할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ── 엑셀 형식 ── -->
+    <div class="section" id="excel-format">
+        <div class="section-badge badge-common">엑셀 형식</div>
+        <h2>엑셀 파일 형식</h2>
+
+        <h3>📦 협찬/샘플 요청 리스트 엑셀 (업로드용)</h3>
+        <p style="color:#888; font-size:12px; margin-bottom:6px;">1행=안내문, 2행=헤더, 3행~=데이터 / A열(등록번호)이 비어있는 행만 신규 등록됩니다.</p>
+        <table class="col-table">
+            <thead>
+                <tr>
+                    <th class="col-letter">열</th>
+                    <th>항목명</th>
+                    <th>설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="col-letter">A</td><td>등록번호</td><td>시스템 등록 후 자동 기입 — <strong>비워두세요</strong></td></tr>
+                <tr><td class="col-letter">B</td><td>요청날짜</td><td>출고 요청 날짜 (YYYY-MM-DD)</td></tr>
+                <tr><td class="col-letter">C</td><td>제품명 <span class="required">*필수</span></td><td>협찬/샘플 제품 모델명</td></tr>
+                <tr><td class="col-letter">D</td><td>악세서리 추가</td><td>추가 동봉 악세서리명</td></tr>
+                <tr><td class="col-letter">E</td><td>수량</td><td>출고 수량 (기본값: 1)</td></tr>
+                <tr><td class="col-letter">F</td><td>사유</td><td>협찬/샘플 출고 사유</td></tr>
+                <tr><td class="col-letter">G</td><td>인플루언서명</td><td>인플루언서 채널명 또는 본명</td></tr>
+                <tr><td class="col-letter">H</td><td>업체명</td><td>소속 업체명</td></tr>
+                <tr><td class="col-letter">I</td><td>수령자명 <span class="required">*필수</span></td><td>택배 수령인 이름</td></tr>
+                <tr><td class="col-letter">J</td><td>송장번호</td><td>비워두세요 (시스템이 자동 등록)</td></tr>
+                <tr><td class="col-letter">K</td><td>핸드폰 <span class="required">*필수</span></td><td>수령인 휴대폰 번호 (출고완료 매칭 기준)</td></tr>
+                <tr><td class="col-letter">L</td><td>일반전화</td><td>수령인 일반 전화번호</td></tr>
+                <tr><td class="col-letter">M</td><td>주소 <span class="required">*필수</span></td><td>배송 주소 (전체 주소)</td></tr>
+                <tr><td class="col-letter">N</td><td>배송메시지</td><td>배송 시 전달 메시지</td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:28px;">📸 포토이벤트 요청 리스트 엑셀 (업로드용)</h3>
+        <p style="color:#888; font-size:12px; margin-bottom:6px;">1행=헤더, 2행~=데이터 / 주문번호가 동일한 건은 자동으로 건너뜁니다.</p>
+        <table class="col-table">
+            <thead>
+                <tr>
+                    <th class="col-letter">열</th>
+                    <th>항목명</th>
+                    <th>설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="col-letter">A</td><td>품목명 <span class="required">*필수</span></td><td>발송 사은품 품목명</td></tr>
+                <tr><td class="col-letter">B</td><td>박스수량</td><td>발송 수량 (기본값: 1)</td></tr>
+                <tr><td class="col-letter">C</td><td>받는분 성명 <span class="required">*필수</span></td><td>택배 수령인 이름</td></tr>
+                <tr><td class="col-letter">D</td><td>받는분 전화번호 <span class="required">*필수</span></td><td>수령인 휴대폰 번호 (출고완료 매칭 기준)</td></tr>
+                <tr><td class="col-letter">E</td><td>받는분 주소 <span class="required">*필수</span></td><td>배송 주소 (전체 주소)</td></tr>
+                <tr><td class="col-letter">F</td><td>배송메시지</td><td>배송 시 전달 메시지</td></tr>
+                <tr><td class="col-letter">G</td><td>쇼핑몰</td><td>구매한 쇼핑몰명</td></tr>
+                <tr><td class="col-letter">H</td><td>주문번호</td><td>쇼핑몰 주문번호 (중복 방지 기준)</td></tr>
+                <tr><td class="col-letter">I</td><td>아이디</td><td>쇼핑몰 구매자 아이디</td></tr>
+                <tr><td class="col-letter">J</td><td>구입일</td><td>제품 구입일 (YYYY-MM-DD)</td></tr>
+                <tr><td class="col-letter">K</td><td>제품명</td><td>구입한 제품명</td></tr>
+                <tr><td class="col-letter">L</td><td>메모</td><td>기타 메모</td></tr>
+                <tr><td class="col-letter">N</td><td>관리자 메모</td><td>내부 관리자 메모</td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:28px;">🚚 CJ택배 배송완료 엑셀 (출고완료 처리용)</h3>
+        <p style="color:#888; font-size:12px; margin-bottom:6px;">CJ택배 사이트에서 다운로드하는 <strong>발송고객_일별_배달상세</strong> 파일을 그대로 사용합니다.</p>
+        <table class="col-table">
+            <thead>
+                <tr>
+                    <th class="col-letter">열</th>
+                    <th>항목명</th>
+                    <th>설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="col-letter">H</td><td>운송장번호</td><td>시스템이 자동으로 읽어 등록합니다</td></tr>
+                <tr><td class="col-letter">V</td><td>받는분 전화번호</td><td>이 번호로 요청 리스트와 자동 매칭합니다</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ── 주의사항 ── -->
+    <div class="section" id="notice">
+        <div class="section-badge badge-common">주의사항</div>
+        <h2>주의사항</h2>
+
+        <div class="step-list">
+            <div class="step-item">
+                <div class="step-num" style="background:#e74c3c;">!</div>
+                <div class="step-body">
+                    <strong>전화번호 형식 통일</strong>
+                    <p>출고완료 처리는 <strong>전화번호로 자동 매칭</strong>됩니다. 요청 리스트와 CJ택배 엑셀의 전화번호 형식이 달라도 자동으로 처리되지만, 번호 자체가 다르면 매칭되지 않습니다.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-num" style="background:#e74c3c;">!</div>
+                <div class="step-body">
+                    <strong>협찬/샘플: 팀장 승인 전에는 출고 처리 불가</strong>
+                    <p>요청 리스트에 올라온 건은 <strong>반드시 팀장 승인</strong>을 받아야 출고요청서 다운로드 및 출고완료 처리가 가능합니다.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-num" style="background:#e74c3c;">!</div>
+                <div class="step-body">
+                    <strong>포토이벤트: 주문번호 중복 주의</strong>
+                    <p>동일한 주문번호로 재업로드 시 <strong>자동으로 건너뜁니다</strong>. 수정이 필요한 경우 기존 건을 삭제 후 재업로드하거나 상세보기에서 직접 수정해 주세요.</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-num" style="background:#f39c12;">?</div>
+                <div class="step-body">
+                    <strong>문의</strong>
+                    <p>시스템 사용 중 오류 발생 시 시스템 관리자에게 문의해 주세요.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        캐치웰 출고 관리 시스템 사용 안내 &nbsp;·&nbsp; <?php echo date('Y'); ?>
+    </div>
+
+</div>
+</body>
+</html>

@@ -623,7 +623,7 @@ class CKakaoNotificationTalkEx {
         $code = $Ret_data->code;// 결과 코드 code 1000이면 성공
         $description = $Ret_data->description;//결과 메세지 success 출력
         $refkey_value = $Ret_data->refkey;//고객사에서 부여한 키
-        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키 
+        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키
 
         if ($DEBUG)
         {
@@ -800,7 +800,7 @@ class CKakaoNotificationTalkEx {
         $code = $Ret_data->code;// 결과 코드 code 1000이면 성공
         $description = $Ret_data->description;//결과 메세지 success 출력
         $refkey_value = $Ret_data->refkey;//고객사에서 부여한 키
-        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키 
+        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키
 
         if ($DEBUG)
         {
@@ -1004,7 +1004,7 @@ class CKakaoNotificationTalkEx {
         $code = $Ret_data->code;// 결과 코드 code 1000이면 성공
         $description = $Ret_data->description;//결과 메세지 success 출력
         $refkey_value = $Ret_data->refkey;//고객사에서 부여한 키
-        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키 
+        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키
 
         if ($DEBUG)
         {
@@ -1169,7 +1169,7 @@ class CKakaoNotificationTalkEx {
         $code = $Ret_data->code;// 결과 코드 code 1000이면 성공
         $description = $Ret_data->description;//결과 메세지 success 출력
         $refkey_value = $Ret_data->refkey;//고객사에서 부여한 키
-        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키 
+        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키
 
         if ($DEBUG)
         {
@@ -1281,7 +1281,7 @@ class CKakaoNotificationTalkEx {
         $code = $Ret_data->code;// 결과 코드 code 1000이면 성공
         $description = $Ret_data->description;//결과 메세지 success 출력
         $refkey_value = $Ret_data->refkey;//고객사에서 부여한 키
-        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키 
+        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키
 
         if ($DEBUG)
         {
@@ -1331,8 +1331,77 @@ class CKakaoNotificationTalkEx {
             //echo mysqli_error( $db );
         }
 
-        return true;        
+        return true;
     }
+
+	// 수리비 입금 완료 알림톡
+	function NotiMsg_repair_paid_ok($db, $customerPhone, $regNumber, $paidAmt, $picName = '')
+    {
+		$defaultCallback = "07077776752";
+        if ($picName == "이승환") {
+            $engineerPhone = "010-4071-8720";
+        } else if ($picName == "정승호") {
+            $engineerPhone = "070-7777-6752";
+        } else {
+            $engineerPhone = "070-7777-6752";
+        }
+        $DEBUG = 0;
+        $homapageLink_m = "https://m.catchwell.com";
+        $homapageLink   = "https://www.catchwell.com";
+		$asLink = "http://backup.catchwell.com/cw_as/online_as/online_as_customer_search.php?searchBy=searchbyRegisterNo&searchData=".$regNumber;
+
+        $url    = 'https://api.bizppurio.com/v3/message';
+        $token  = getToken();
+        $headers1 = array('Accept:application/json', 'Content-Type:application/json', 'Authorization:Bearer '. $token);
+
+        $button_list1 = array("name"=>"AS 조회", "type"=>"WL", "url_pc" =>$asLink, "url_mobile"=>$asLink);
+        $button_list2 = array("name"=>"홈페이지", "type"=>"WL", "url_pc" =>$homapageLink, "url_mobile"=>$homapageLink_m);
+        $buttons = array($button_list1, $button_list2);
+
+        $at["message"] = "안녕하세요. 캐치웰입니다.\n\n".
+            "수리비 입금이 확인되었습니다.\n".
+            "빠른 시일 내에 수리를 완료하도록 최선을 다하겠습니다.\n\n".
+            "* 접수번호 : ".$regNumber."\n".
+            "* 입금금액 : ".number_format($paidAmt)."원\n\n".
+            "수리 완료 후 별도 안내드리겠습니다.\n".
+            "관련 문의사항은 담당 엔지니어(".$engineerPhone.")로 연락 주세요.";
+
+        // TODO: 비즈뿌리오에 새 알림톡 템플릿 등록 후 아래 templatecode를 교체하세요.
+        $at["senderkey"]    = "44970513f96ceef0a7b532fa874d4697ca936dce";
+        $at["templatecode"] = "bizp_2026060914284939829027980"; // TODO: 수리비입금 전용 템플릿 코드로 교체
+        $at["button"]       = $buttons;
+
+        $content = array("at" => $at);
+        $data = array();
+        $data["account"] = "catchwellota";
+        $data["refkey"]  = "00000";
+        $data["type"]    = "at";
+        $data["from"]    = $defaultCallback;
+        $data["to"]      = $customerPhone;
+        $data["content"] = $content;
+
+        $json_data = json_encode($data, JSON_UNESCAPED_SLASHES);
+        $Response  = httpsPost($url, $json_data, $headers1);
+
+        $Ret_data   = (json_decode($Response));
+        $description = isset($Ret_data->description) ? $Ret_data->description : '';
+        $messagekey  = isset($Ret_data->messagekey)  ? $Ret_data->messagekey  : '';
+
+        $send_date = date("Y-m-d H:i:s");
+        $db->insert("TB_SHIPMENT_KAKAO",
+            "SENDING='수리비입금확인',
+            DATE='$send_date',
+            CMID='$messagekey',
+            STATUS='',
+            TID_NO='$regNumber',
+            PHONE='$customerPhone',
+            CALLBACK='',
+            RSLT='',
+            MSG_RSLT=''
+        ");
+        return true;
+    }
+
 	//고객사진을 전송받기 위한 알림톡 발송
 	function NotiMsg_picture_get($customerPhone, $TempleteCode)
     {
@@ -1382,7 +1451,7 @@ class CKakaoNotificationTalkEx {
         $code = $Ret_data->code;// 결과 코드 code 1000이면 성공
         $description = $Ret_data->description;//결과 메세지 success 출력
         $refkey_value = $Ret_data->refkey;//고객사에서 부여한 키
-        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키 
+        $messagekey = $Ret_data->messagekey;//메세지키 고객문의 및 리포트 재요청 기준키
 
         if ($DEBUG)
         {

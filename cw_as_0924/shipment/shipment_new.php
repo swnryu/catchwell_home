@@ -1,7 +1,7 @@
 <?
 error_reporting(E_ALL);
 include("../def_inc.php");
-include("event_def.php");
+include("../online_event/event_def.php");
 
 $mod	= M_SHIPMENT;
 $menu	= S_SHIPMENT_NEW; 

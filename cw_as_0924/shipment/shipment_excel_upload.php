@@ -14,11 +14,11 @@ include("../header.php");
 $return_url = $_POST['return_url'];
 $table	= "shipping_date_new";
 
-//2월 5일 배송리스트.xls
 //파일 업로드 경로
-$file_dir	 = "files/";
-$file_name = "2022/".$_FILES['userfile1']['name'];
-$file_pathname = $file_dir.$file_name;
+$file_dir      = __DIR__ . '/files/' . date('Y') . '/';
+$file_name     = $_FILES['userfile1']['name'];
+$file_pathname = $file_dir . $file_name;
+if (!is_dir($file_dir)) { @mkdir($file_dir, 0755, true); }
 
 //echo $file_pathname;
 $cnt = 0;

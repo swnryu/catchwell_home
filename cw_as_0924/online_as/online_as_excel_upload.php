@@ -143,31 +143,40 @@ if( $_FILES['userfile']['size'] > 0 ) {
 
 				if( $db->cnt($db_name, $where) > 0)
 				{
-					if ($state==ST_REGISTERING || $state==ST_DC || $state==ST_REG_DONE) //회수용 송장 처리 
+					if ($state==ST_REGISTERING || $state==ST_DC || $state==ST_REG_DONE) //회수용 송장 처리
 					{
+						$row_before = $db->object($db_name, $where);
 						$data = "update_time=now(), parcel_num='$tracking_num', " . "process_state=$process_state"." ".$where;
 						if( $db->update($db_name, $data))
 						{
 							$cnt_suc++;
-
+							if ($row_before && $state != $process_state) {
+								$rnum = mysqli_real_escape_string($db->db_conn, $row_before->reg_num);
+								$db->insert("as_process_history", "as_idx={$row_before->idx}, reg_num='$rnum', prev_state=$state, new_state=$process_state, changed_by='$ADMIN_NAME', changed_at=now()");
+							}
 						} else {
 							$tools->alertJavaGo("데이터베이스 업데이트 에러가 발생하였습니다.", $return_url);
 						}
 					}
-					else if ($state==ST_FIX_DONE) //발송용 송장 처리 
+					else if ($state==ST_FIX_DONE) //발송용 송장 처리
 					{
+						$row_before = $db->object($db_name, $where);
 						$data = "update_time=now(), parcel_num_return='$tracking_num', " . "process_state=$process_state"." ".$where;
 						if( $db->update($db_name, $data) )
 						{
 							$cnt_suc++;
+							if ($row_before && $state != $process_state) {
+								$rnum = mysqli_real_escape_string($db->db_conn, $row_before->reg_num);
+								$db->insert("as_process_history", "as_idx={$row_before->idx}, reg_num='$rnum', prev_state=$state, new_state=$process_state, changed_by='$ADMIN_NAME', changed_at=now()");
+							}
 
-							if (true) 
+							if (true)
 							{
 								//수리완료에서, 송장번호 입력시 알림톡전송
 								//[출고완료] 카카오알림톡전송
-								if( ($tracking_num != '') && 
-									($process_state==ST_AS_COMPLETED) && ($state!=ST_AS_COMPLETED) ) 
-								{//운송장 번호가 있고, 수리완료->출고로 상태 변경시 알림톡 발송 
+								if( ($tracking_num != '') &&
+									($process_state==ST_AS_COMPLETED) && ($state!=ST_AS_COMPLETED) )
+								{//운송장 번호가 있고, 수리완료->출고로 상태 변경시 알림톡 발송
 									//$where = "where reg_num='$reg_num'";
 									$where = "where customer_name='$name' AND process_state=$process_state";
 									$row = $db->object($db_name, $where);
@@ -241,7 +250,7 @@ if( $_FILES['userfile']['size'] > 0 ) {
 						{
 							$where = "where customer_name='$name' AND process_state=$state AND (parcel_num='' OR parcel_num is NULL) ORDER BY reg_date DESC LIMIT 1";
 						} 
-						else if ($state==ST_FIX_DONE) //발송용 송장 처리 
+						else if ($state==ST_FIX_DONE) //발송용 송장 처리
 						{
 							$where = "where customer_name='$name' AND process_state=$state AND (parcel_num_return='' OR parcel_num_return is NULL) ORDER BY reg_date DESC LIMIT 1";
 						}
@@ -252,7 +261,7 @@ if( $_FILES['userfile']['size'] > 0 ) {
 						{
 							$where = "where reg_num='$reg_num' AND process_state=$state AND (parcel_num='' OR parcel_num is NULL) ORDER BY reg_date DESC LIMIT 1";
 						} 
-						else if ($state==ST_FIX_DONE) //발송용 송장 처리 
+						else if ($state==ST_FIX_DONE) //발송용 송장 처리
 						{
 							$where = "where reg_num='$reg_num' AND process_state=$state AND (parcel_num_return='' OR parcel_num_return is NULL) ORDER BY reg_date DESC LIMIT 1";
 						}
@@ -261,23 +270,32 @@ if( $_FILES['userfile']['size'] > 0 ) {
 
 					if( $db->cnt($db_name, $where) > 0)
 					{
-						if ($state==ST_REGISTERING || $state==ST_DC || $state==ST_REG_DONE) //회수용 송장 처리 
+						if ($state==ST_REGISTERING || $state==ST_DC || $state==ST_REG_DONE) //회수용 송장 처리
 						{
+							$row_before = $db->object($db_name, $where);
 							$data = "update_time=now(), parcel_num='$tracking_num', " . "process_state=$process_state"." ".$where;
 							if( $db->update($db_name, $data))
 							{
 								$cnt_suc++;
-
+								if ($row_before && $state != $process_state) {
+									$rnum = mysqli_real_escape_string($db->db_conn, $row_before->reg_num);
+									$db->insert("as_process_history", "as_idx={$row_before->idx}, reg_num='$rnum', prev_state=$state, new_state=$process_state, changed_by='$ADMIN_NAME', changed_at=now()");
+								}
 							} else {
 								$tools->alertJavaGo("데이터베이스 업데이트 에러가 발생하였습니다.", $return_url);
 							}
 						}
-						else if ($state==ST_FIX_DONE) //발송용 송장 처리 
+						else if ($state==ST_FIX_DONE) //발송용 송장 처리
 						{
+							$row_before = $db->object($db_name, $where);
 							$data = "update_time=now(), parcel_num_return='$tracking_num', " . "process_state=$process_state"." ".$where;
 							if( $db->update($db_name, $data) )
 							{
 								$cnt_suc++;
+								if ($row_before && $state != $process_state) {
+									$rnum = mysqli_real_escape_string($db->db_conn, $row_before->reg_num);
+									$db->insert("as_process_history", "as_idx={$row_before->idx}, reg_num='$rnum', prev_state=$state, new_state=$process_state, changed_by='$ADMIN_NAME', changed_at=now()");
+								}
 
 								if (true) 
 								{

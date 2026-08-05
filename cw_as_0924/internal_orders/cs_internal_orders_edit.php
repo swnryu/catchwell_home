@@ -148,6 +148,18 @@ $return_url = isset($_GET['return_url']) ? $_GET['return_url'] : $_SERVER['REQUE
 		</div>
 		</td>
 	</tr>
+	<? if($mode == "new") { ?>
+	<tr>
+		<th>수량*</th>
+		<td>
+			<div class="form-inline">
+				<input type="number" class="form-control input-sm" name="parts_count" id="parts_count"
+				       style="width:100px; text-align:right;" min="1" value="1" autocomplete="off">
+				<span style="margin-left:6px;">개 &nbsp;<span class="text-muted" style="font-size:12px;">수량만큼 개별 행으로 등록됩니다.</span></span>
+			</div>
+		</td>
+	</tr>
+	<? } ?>
 	<tr>
 		<th>판매경로</th>
 		<td>

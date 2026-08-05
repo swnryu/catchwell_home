@@ -139,6 +139,14 @@ if($_POST['mode']=="write"){
 		"
 		)) //20210105
 	{
+		// 히스토리 기록 (최초 접수) — admin_log 인서트 전에 lastIdx 호출
+		$new_idx = $db->lastIdx();
+		$changer_new = mysqli_real_escape_string($db->db_conn, $ADMIN_NAME);
+		$db->insert("as_process_history", "as_idx=$new_idx, reg_num='$reg_num', prev_state=NULL, new_state=" . ST_REGISTERING . ", changed_by='{$changer_new}(수기접수)', changed_at=now()");
+		if ($process_state != ST_REGISTERING) {
+			$db->insert("as_process_history", "as_idx=$new_idx, reg_num='$reg_num', prev_state=" . ST_REGISTERING . ", new_state=$process_state, changed_by='{$changer_new}(수기접수)', changed_at=now()");
+		}
+
 		//관리자 로그
 		$db->insert("admin_log","userid='$_SESSION[ADMIN_USERID]', contents='new_reg', ip='$_SERVER[REMOTE_ADDR]', udate=now(), comment='$reg_num'");
 
@@ -287,7 +295,8 @@ else if($_POST['mode']=="edit"){
 				admin_desc='$_POST[admin_desc]',
 				price=$_POST[price]"; //20210105
 
-		if ($row->process_state != $_POST['process_state']) {
+		$state_changed = ($row->process_state != $_POST['process_state']);
+		if ($state_changed) {
 			$data = $data . ", update_time=now() ";
 		}
 
@@ -301,6 +310,14 @@ else if($_POST['mode']=="edit"){
 		{
 			//관리자 로그
 			$db->insert("admin_log","userid='$_SESSION[ADMIN_USERID]', contents='update_reg', ip='$_SERVER[REMOTE_ADDR]', udate=now(), comment='$reg_num'");
+
+			// 히스토리 기록 (상태 변경 시)
+			if ($state_changed) {
+				$prev     = (int)$row->process_state;
+				$new      = (int)$_POST['process_state'];
+				$changer  = mysqli_real_escape_string($db->db_conn, $ADMIN_NAME);
+				$db->insert("as_process_history", "as_idx=$idx, reg_num='$reg_num', prev_state=$prev, new_state=$new, changed_by='$changer', changed_at=now()");
+			}
 
 			//$return_url = "online_as_view.php?idx=".$_POST[idx]."&from=".$menu; //online_as_edit.php?idx=1113&from=sub_as
 			$return_url = "online_as.php";

@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS `cs_sponsored_orders` (
+  `idx`              INT           NOT NULL AUTO_INCREMENT,
+  `reg_datetime`     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `request_date`     DATE          DEFAULT NULL,
+  `product_name`     VARCHAR(200)  NOT NULL DEFAULT '',
+  `accessory_name`   VARCHAR(500)  NOT NULL DEFAULT '',
+  `quantity`         INT           NOT NULL DEFAULT 1,
+  `reason`           VARCHAR(500)  NOT NULL DEFAULT '',
+  `influencer_name`  VARCHAR(200)  NOT NULL DEFAULT '',
+  `company_name`     VARCHAR(200)  NOT NULL DEFAULT '',
+  `customer_name`    VARCHAR(100)  NOT NULL DEFAULT '',
+  `customer_phone`   VARCHAR(30)   NOT NULL DEFAULT '',
+  `customer_phone2`  VARCHAR(30)   NOT NULL DEFAULT '',
+  `customer_addr`    VARCHAR(500)  NOT NULL DEFAULT '',
+  `delivery_memo`    VARCHAR(300)  NOT NULL DEFAULT '',
+  `delivery_num`     VARCHAR(50)   NOT NULL DEFAULT '',
+  `status`           TINYINT       NOT NULL DEFAULT 0,
+  `pic_name`         VARCHAR(100)  NOT NULL DEFAULT '',
+  `pic_memo`         TEXT,
+  PRIMARY KEY (`idx`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

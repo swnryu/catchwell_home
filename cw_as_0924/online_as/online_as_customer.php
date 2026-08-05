@@ -108,10 +108,12 @@ if( $db->insert($db_name,
         product_name='$product_name',
         product_date='$product_date'
     "
-)) 
-{   
-    
-    
+))
+{
+	// 히스토리 기록 (홈페이지 신규 접수)
+	$new_idx = $db->lastIdx();
+	$db->insert("as_process_history", "as_idx=$new_idx, reg_num='$reg_num', prev_state=NULL, new_state=$process_state, changed_by='고객접수', changed_at=now()");
+
 	$table = "as_parcel_service";
 	$query2="select * from $table where process_state>3 and customer_phone='$customer_phone' and customer_phone!='01000000000' ";
 	$rs2 = mysqli_query($db->db_conn, $query2);

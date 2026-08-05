@@ -28,7 +28,8 @@ if ($product_name == "" || $product_name == NULL) {
 
 
 if($idx) {
-	
+	$row_before = $db->object($db_name, "where idx=$idx");
+
 	if( $db->update($db_name, $data))
 //		"	process_state=$_POST[process_state],
 //			admin_memo='$_POST[admin_memo]'
@@ -36,6 +37,13 @@ if($idx) {
 //		"
 //		))
 	{
+		// 히스토리 기록 (상태 변경 시)
+		if ($row_before && $row_before->process_state != $_POST['process_state']) {
+			$prev = (int)$row_before->process_state;
+			$new  = (int)$_POST['process_state'];
+			$rnum = mysqli_real_escape_string($db->db_conn, $row_before->reg_num);
+			$db->insert("as_process_history", "as_idx=$idx, reg_num='$rnum', prev_state=$prev, new_state=$new, changed_by='$pic_name', changed_at=now()");
+		}
 //			$tools->alertJavaGo("수정하였습니다.", $return_url);
 ?>
 			<div style="margin-top:25%;text-align:center;"><h3>등록 성공. 처리중입니다.....</h3></div>

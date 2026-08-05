@@ -96,21 +96,23 @@ class dbConnect {
 }
 
 class mysqli_dbConnect {
-	
-	var $db_host, $db_name, $db_user, $db_pwd, $db_conn;
-	
-	function mysqli_dbConnect ( $db_host, $db_name, $db_user, $db_pwd) {
-		
+
+	var $db_host, $db_name, $db_user, $db_pwd, $db_port, $db_conn;
+
+	function mysqli_dbConnect ( $db_host, $db_name, $db_user, $db_pwd, $db_port = 3306) {
+
 		$this->db_host		= $db_host;
 		$this->db_name		= $db_name;
 		$this->db_user		= $db_user;
 		$this->db_pwd		= $db_pwd;
+		$this->db_port		= $db_port;
 
-		$this->db_conn = @mysqli_connect( $this->db_host, $this->db_user, $this->db_pwd, $this->db_name);
-		
+		$this->db_conn = @mysqli_connect( $this->db_host, $this->db_user, $this->db_pwd, $this->db_name, $this->db_port);
+
 		if (mysqli_connect_errno($this->db_conn)){
 			die("데이터베이스에 접속이 불가능합니다.");
 		}
+		mysqli_set_charset($this->db_conn, 'utf8');
 	}
 	
 	function dbClose() {
